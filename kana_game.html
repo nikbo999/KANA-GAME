@@ -1,0 +1,2055 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Kana Game</title>
+
+<!-- PWA: theme + status bar -->
+<meta name="thegit add kana_game.html git commit -m "add kana game" git push
+le" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Kana Game"/>
+<meta name="description" content="Hiragana and Katakana practice game"/>
+
+<!-- PWA: inline manifest via data URI so this stays a single file -->
+<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Kana+Game%22%2C%22short_name%22%3A%22Kana%22%2C%22description%22%3A%22Hiragana+and+Katakana+practice+game%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23090e1c%22%2C%22theme_color%22%3A%22%23090e1c%22%2C%22orientation%22%3A%22portrait-primary%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDUxMiA1MTIiPjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTEyIiBmaWxsPSIjMDkwZTFjIi8%2BPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMTIiIGZpbGw9InVybCgjZykiLz48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzBmMWY1MCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzExMGQzOCIvPjwvbGluZWFyR3JhZGllbnQ%2BPC9kZWZzPjx0ZXh0IHg9IjI1NiIgeT0iMzIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjI4MCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZpbGw9InVybCgjdCkiPuOBgDwvdGV4dD48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9InQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzZjOWZmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2E3OGJmYSIvPjwvbGluZWFyR3JhZGllbnQ%2BPC9kZWZzPjwvc3ZnPg%3D%3D%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any+maskable%22%7D%5D%7D"/>
+
+<!-- PWA: Apple touch icon (same SVG, base64) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iIzA5MGUxYyIvPjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTEyIiBmaWxsPSJ1cmwoI2cpIi8+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwZjFmNTAiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxMTBkMzgiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48dGV4dCB4PSIyNTYiIHk9IjMyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyODAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmaWxsPSJ1cmwoI3QpIj7jgYA8L3RleHQ+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJ0IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM2YzlmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNhNzhiZmEiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48L3N2Zz4="/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=M+PLUS+Rounded+1c:wght@400;700;900&family=Sawarabi+Mincho&family=BIZ+UDGothic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg: #090e1c;
+  --surface: rgba(255,255,255,.045);
+  --surface2: rgba(255,255,255,.075);
+  --border: rgba(255,255,255,.10);
+  --border2: rgba(255,255,255,.16);
+  --muted: #8a97b8;
+  --text: #e8eeff;
+  --good: #1dd1a1;
+  --bad: #ff6b6b;
+  --warn: #ffc94d;
+  --accent: #6c9fff;
+  --accent2: #a78bfa;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 28px rgba(0,0,0,.38);
+  --kana-font: "Noto Sans JP", sans-serif;
+  --font-scale: 1;
+  --transition: .14s ease;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #090e1c;
+  background-image:
+    radial-gradient(ellipse 120% 70% at 15% 0%, #0f1f50 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 85% 100%, #110d38 0%, transparent 55%);
+  color: var(--text);
+  min-height: 100dvh;
+  display: grid;
+  place-items: start center;
+  padding: 16px;
+}
+
+.wrap {
+  width: min(1100px, 100%);
+  display: grid;
+  gap: 12px;
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(8px);
+}
+
+.header-left { display: flex; align-items: center; gap: 14px; }
+
+.logo {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  font-family: var(--kana-font);
+  background: linear-gradient(135deg, #6c9fff 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logo-sub { font-size: 13px; color: var(--muted); margin-top: 1px; }
+
+.stat-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  background: rgba(108,159,255,.09);
+  border: 1px solid rgba(108,159,255,.22);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.stat-pill b { color: var(--text); font-weight: 700; font-size: 14px; }
+.stat-pill .icon { font-size: 14px; opacity: .75; }
+
+/* ── MODE TABS ── */
+.mode-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(0,0,0,.25);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+}
+
+.mode-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  padding: 9px 16px;
+  border-radius: calc(var(--radius) - 4px);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  white-space: nowrap;
+}
+
+.mode-tab:hover { color: var(--text); background: rgba(255,255,255,.06); }
+
+.mode-tab.active {
+  background: linear-gradient(135deg, rgba(108,159,255,.22), rgba(167,139,250,.18));
+  color: var(--text);
+  border: 1px solid rgba(108,159,255,.35);
+  box-shadow: 0 2px 10px rgba(108,159,255,.15);
+}
+
+/* ── MAIN LAYOUT ── */
+.main-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr 280px;
+  gap: 12px;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .main-layout { grid-template-columns: 240px 1fr; }
+  .insights-col { display: none; }
+}
+
+@media (max-width: 680px) {
+  .main-layout { grid-template-columns: 1fr; }
+  .settings-col { order: 2; }
+  .game-col { order: 1; }
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* ── SETTINGS COLUMN ── */
+.settings-col { display: grid; gap: 8px; }
+
+.settings-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.settings-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  transition: color var(--transition), background var(--transition);
+}
+
+.settings-section-header:hover { color: var(--text); background: var(--surface2); }
+
+.settings-section-header .chevron {
+  font-size: 10px;
+  transition: transform .2s ease;
+  opacity: .6;
+}
+
+.settings-section.open .settings-section-header .chevron { transform: rotate(180deg); }
+
+.settings-section-header .section-icon { margin-right: 7px; font-size: 14px; }
+
+.settings-body {
+  display: none;
+  padding: 4px 0 8px;
+  border-top: 1px solid var(--border);
+}
+
+.settings-section.open .settings-body { display: block; }
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  gap: 10px;
+  min-height: 40px;
+}
+
+.setting-row:hover { background: var(--surface2); }
+
+.setting-label {
+  font-size: 13.5px;
+  color: var(--text);
+  flex: 1;
+}
+
+.setting-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+/* toggle switch */
+.toggle-wrap { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+.toggle-wrap input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track {
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,.12);
+  border: 1px solid var(--border2);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease;
+}
+.toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 14px; height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .18s ease, background .18s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,.4);
+}
+.toggle-wrap input:checked + .toggle-track {
+  background: linear-gradient(135deg, #6c9fff, #a78bfa);
+  border-color: rgba(108,159,255,.5);
+}
+.toggle-wrap input:checked + .toggle-track::after { transform: translateX(16px); }
+
+/* compact select */
+.compact-select {
+  background: rgba(0,0,0,.3);
+  color: var(--text);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  max-width: 130px;
+}
+.compact-select option { background: #0d1630; }
+.compact-select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(108,159,255,.25); }
+
+/* ── GAME COLUMN ── */
+.game-col { display: grid; gap: 12px; }
+
+/* recent mistakes */
+.mistakes-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid rgba(255,107,107,.18);
+  border-radius: var(--radius);
+  min-height: 46px;
+}
+
+.mistakes-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+.mistake-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: rgba(255,107,107,.10);
+  border: 1px solid rgba(255,107,107,.28);
+  border-radius: 8px;
+  animation: badgeIn .22s ease;
+  cursor: default;
+}
+
+@keyframes badgeIn { from { opacity:0; transform: scale(.82) translateY(-3px); } to { opacity:1; transform: scale(1) translateY(0); } }
+
+.mistake-badge .mb-char {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  font-family: var(--kana-font);
+  color: #ffb3b3;
+}
+
+.mistake-badge .mb-ro { font-size: 11px; color: var(--muted); }
+
+.mistakes-empty { font-size: 12.5px; color: rgba(138,151,184,.45); font-style: italic; }
+
+/* game card */
+.game-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 520px) { .game-card { grid-template-columns: 1fr; } }
+
+/* prompt side */
+.prompt-side {
+  display: grid;
+  place-items: center;
+  padding: 24px 16px 20px;
+  gap: 12px;
+  border-right: 1px solid var(--border);
+  background: linear-gradient(160deg, rgba(108,159,255,.04) 0%, transparent 70%);
+}
+
+@media (max-width: 520px) { .prompt-side { border-right: none; border-bottom: 1px solid var(--border); } }
+
+.prompt-label { font-size: 13px; color: var(--muted); text-align: center; }
+
+.mode-badge-pill {
+  font-size: 11.5px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: rgba(108,159,255,.10);
+  border: 1px solid rgba(108,159,255,.28);
+  color: #a8c4ff;
+}
+
+.timer-wrap { width: 100%; display: grid; gap: 5px; }
+.timer-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.timer-bar { width: 100%; height: 8px; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid var(--border); overflow: hidden; }
+.timer-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #a78bfa); transition: width .08s linear, background .2s; }
+.timer-fill.warn { background: linear-gradient(90deg, #ffc94d, #ffe49a); }
+.timer-fill.danger { background: linear-gradient(90deg, var(--bad), #ff9e9e); }
+.timer-hidden { display: none; }
+
+.kana-display {
+  font-size: calc(clamp(72px, 11vw, 130px) * var(--font-scale));
+  font-weight: 900;
+  line-height: 1;
+  font-family: var(--kana-font);
+  letter-spacing: 1px;
+  text-shadow: 0 6px 24px rgba(0,0,0,.4);
+  user-select: none;
+  transition: font-size .2s;
+}
+
+.kana-display.flash-correct { animation: flashCorrect .48s ease forwards; }
+.kana-display.flash-wrong   { animation: flashWrong .85s ease forwards; }
+
+@keyframes flashCorrect {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.16); color: var(--good); text-shadow: 0 0 22px rgba(29,209,161,.55), 0 6px 24px rgba(0,0,0,.4); }
+  100% { transform: scale(1); color: var(--text); }
+}
+@keyframes flashWrong {
+  0%   { transform: scale(1); color: var(--text); }
+  15%  { transform: scale(1.22); color: var(--bad); text-shadow: 0 0 28px rgba(255,107,107,.6), 0 6px 24px rgba(0,0,0,.4); }
+  45%  { transform: scale(1.3); color: var(--bad); }
+  75%  { transform: scale(1.26); color: #ffb3b3; }
+  100% { transform: scale(1); color: var(--text); }
+}
+
+.hint-text { font-size: 12.5px; color: var(--muted); text-align: center; max-width: 200px; line-height: 1.5; }
+
+.feedback-msg {
+  min-height: 22px;
+  font-size: 14px;
+  color: var(--muted);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--kana-font);
+}
+
+.fb-tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-family: ui-sans-serif, system-ui;
+  font-weight: 600;
+}
+.fb-tag.good { background: rgba(29,209,161,.14); border: 1px solid rgba(29,209,161,.4); color: #9fedd8; }
+.fb-tag.bad  { background: rgba(255,107,107,.14); border: 1px solid rgba(255,107,107,.4); color: #ffbcbc; }
+.fb-tag.warn { background: rgba(255,201,77,.10);  border: 1px solid rgba(255,201,77,.35); color: #ffe9a0; }
+
+/* answer side */
+.answer-side {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 16px;
+  gap: 10px;
+}
+
+.choices-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-content: start;
+}
+
+.choice-btn {
+  border: 1px solid var(--border2);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  padding: 12px 10px;
+  border-radius: var(--radius-sm);
+  font-size: calc(18px * var(--font-scale));
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .06s ease, background .13s ease, border-color .13s ease, box-shadow .08s ease;
+  user-select: none;
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--kana-font);
+  position: relative;
+}
+.choice-btn .cn { font-size: 11px; color: var(--muted); opacity: .7; font-family: ui-sans-serif, system-ui; }
+.choice-btn:hover { transform: translateY(-1px); border-color: rgba(108,159,255,.5); background: rgba(108,159,255,.07); }
+.choice-btn:active { transform: scale(.92) translateY(1px); box-shadow: inset 0 2px 8px rgba(0,0,0,.3); transition: transform .04s, box-shadow .04s; }
+.choice-btn:disabled { opacity: .85; cursor: default; pointer-events: none; }
+.choice-btn.kana { font-size: calc(26px * var(--font-scale)); }
+.choice-btn.correct { background: rgba(29,209,161,.14); border-color: rgba(29,209,161,.5); animation: popCorrect .2s ease; }
+.choice-btn.wrong   { background: rgba(255,107,107,.14); border-color: rgba(255,107,107,.5); animation: shakeWrong .26s ease; }
+@keyframes popCorrect { 0%{transform:scale(1);} 40%{transform:scale(1.07);} 100%{transform:scale(1);} }
+@keyframes shakeWrong { 0%{transform:translateX(0);} 18%{transform:translateX(-5px);} 40%{transform:translateX(5px);} 62%{transform:translateX(-4px);} 82%{transform:translateX(3px);} 100%{transform:translateX(0);} }
+
+/* action bar */
+.action-bar {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 7px;
+  align-items: center;
+}
+
+.btn {
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .06s ease, background .13s ease, border-color .13s ease;
+  user-select: none;
+  padding: 9px 13px;
+  white-space: nowrap;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: scale(.94) translateY(1px); transition: transform .04s; }
+
+.btn-ghost {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border2);
+  color: var(--muted);
+}
+.btn-ghost:hover { border-color: rgba(108,159,255,.4); color: var(--text); }
+
+.btn-reveal {
+  background: rgba(255,201,77,.07);
+  border: 1px solid rgba(255,201,77,.28);
+  color: #ffe9a0;
+}
+.btn-reveal:hover { background: rgba(255,201,77,.13); border-color: rgba(255,201,77,.55); }
+
+.btn-primary {
+  background: linear-gradient(135deg, rgba(108,159,255,.2), rgba(167,139,250,.15));
+  border: 1px solid rgba(108,159,255,.4);
+  color: var(--text);
+  width: 100%;
+  text-align: center;
+  font-size: 15px;
+  padding: 10px 14px;
+}
+.btn-primary:hover { background: linear-gradient(135deg, rgba(108,159,255,.28), rgba(167,139,250,.22)); border-color: rgba(108,159,255,.6); }
+
+/* row selector */
+.rows-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 6px;
+  padding: 8px 14px 12px;
+}
+
+.row-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,.03);
+  cursor: pointer;
+  font-size: 13.5px;
+  user-select: none;
+  transition: border-color var(--transition), background var(--transition);
+}
+.row-opt:hover { border-color: rgba(108,159,255,.45); background: rgba(108,159,255,.05); }
+.row-opt input[type=checkbox] { accent-color: var(--accent); flex-shrink: 0; }
+.row-opt .row-label { flex: 1; color: var(--text); }
+.row-acc-badge {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.row-acc-badge.g { border-color: rgba(29,209,161,.35); color: #9fedd8; }
+.row-acc-badge.m { border-color: rgba(255,201,77,.35);  color: #ffe9a0; }
+.row-acc-badge.b { border-color: rgba(255,107,107,.35); color: #ffbcbc; }
+
+/* group section */
+.group-section { padding: 4px 14px 12px; display: grid; gap: 8px; }
+.group-row { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+.text-input {
+  background: rgba(0,0,0,.3);
+  color: var(--text);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 13px;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+}
+.text-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(108,159,255,.2); }
+.group-item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,.03);
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.gi-name { font-size: 13.5px; font-weight: 600; }
+.gi-count { font-size: 12px; color: var(--muted); }
+.gi-actions { display: flex; gap: 7px; align-items: center; }
+
+/* show chars */
+.show-chars-toggle {
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.show-chars-toggle:hover { color: var(--text); }
+.char-list {
+  padding: 0 14px 12px;
+  display: grid;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--muted);
+  max-height: 200px;
+  overflow: auto;
+}
+.char-list.hidden { display: none; }
+.mono { font-family: ui-monospace, "Cascadia Code", "Fira Mono", monospace; }
+
+/* ── INSIGHTS COLUMN ── */
+.insights-col { display: grid; gap: 8px; align-content: start; }
+
+.insights-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.insights-header {
+  padding: 11px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition), background var(--transition);
+}
+.insights-header:hover { color: var(--text); background: var(--surface2); }
+.insights-header .ih-left { display: flex; align-items: center; gap: 7px; }
+.insights-header .ih-icon { font-size: 14px; }
+.insights-header .ih-chevron { font-size: 10px; opacity: .6; transition: transform .2s ease; }
+.insights-card.open .ih-chevron { transform: rotate(180deg); }
+
+.insights-body {
+  display: none;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+}
+.insights-card.open .insights-body { display: block; }
+
+.pull-body-inner {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.pull-body-inner::-webkit-scrollbar { width: 4px; }
+.pull-body-inner::-webkit-scrollbar-track { background: transparent; }
+.pull-body-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 99px; }
+
+/* weak kana items */
+.weak-item {
+  display: grid;
+  gap: 5px;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 7px;
+  background: rgba(255,255,255,.02);
+}
+.weak-item:last-child { margin-bottom: 0; }
+.wi-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.wi-main { display: flex; align-items: center; gap: 9px; }
+.wi-char { font-size: 28px; font-weight: 800; line-height: 1; font-family: var(--kana-font); }
+.wi-ro { font-size: 15px; }
+.wi-score {
+  font-size: 11px; padding: 3px 8px; border-radius: 999px;
+  background: rgba(108,159,255,.10); border: 1px solid rgba(108,159,255,.28); color: #a8c4ff;
+}
+.wi-meta { display: flex; flex-wrap: wrap; gap: 7px; font-size: 12px; color: var(--muted); }
+
+/* row progress */
+.rp-item { display: grid; gap: 4px; margin-bottom: 9px; }
+.rp-item:last-child { margin-bottom: 0; }
+.rp-header { display: flex; justify-content: space-between; font-size: 12.5px; }
+.rp-name { color: var(--text); }
+.rp-pct { color: var(--muted); }
+.rp-bar { width: 100%; height: 6px; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid var(--border); overflow: hidden; }
+.rp-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #a78bfa); border-radius: 999px; transition: width .4s ease; }
+.rp-fill.w { background: linear-gradient(90deg, #ffc94d, #ffe49a); }
+.rp-fill.b { background: linear-gradient(90deg, var(--bad), #ff9e9e); }
+
+/* pull dist */
+.pull-item { display: grid; gap: 5px; margin-bottom: 8px; }
+.pull-item:last-child { margin-bottom: 0; }
+.pi-top { display: flex; justify-content: space-between; align-items: center; gap: 7px; }
+.pi-main { display: flex; align-items: center; gap: 8px; }
+.pi-char { font-size: 24px; font-weight: 800; line-height: 1; font-family: var(--kana-font); }
+.pi-ro { font-size: 14px; }
+.pi-pct { font-size: 12px; color: var(--muted); }
+.pi-bar { width: 100%; height: 5px; border-radius: 999px; background: rgba(255,255,255,.06); overflow: hidden; }
+.pi-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #a78bfa); border-radius: 999px; }
+
+.empty-state { color: var(--muted); font-size: 13px; line-height: 1.6; padding: 4px 0; }
+
+/* keyboard hint */
+.kb-hint {
+  font-size: 12px;
+  color: rgba(138,151,184,.45);
+  text-align: center;
+  padding: 2px 0 4px;
+}
+.kb-hint kbd {
+  font-family: ui-monospace, monospace;
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 11px;
+}
+
+/* reset btn */
+.btn-reset {
+  background: rgba(255,107,107,.07);
+  border: 1px solid rgba(255,107,107,.22);
+  color: #ff9090;
+  border-radius: var(--radius-sm);
+  padding: 7px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+.btn-reset:hover { background: rgba(255,107,107,.13); border-color: rgba(255,107,107,.4); }
+
+@media (max-width: 680px) {
+  body { padding: 10px; }
+  .logo-sub { display: none; }
+  .stat-pill { padding: 6px 10px; font-size: 12px; }
+  .stat-pill b { font-size: 13px; }
+  .mode-tab { padding: 8px 10px; font-size: 13px; }
+  .kana-display { font-size: calc(clamp(68px,15vw,110px) * var(--font-scale)); }
+  .prompt-side { padding: 18px 12px 14px; }
+  .answer-side { padding: 12px; }
+  .choice-btn { min-height: 58px; }
+  .action-bar { grid-template-columns: auto auto 1fr; gap: 6px; }
+  .rows-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div>
+        <div class="logo">仮名 Kana Game</div>
+        <div class="logo-sub">Hiragana &amp; Katakana practice</div>
+      </div>
+    </div>
+    <div class="stat-pills">
+      <div class="stat-pill"><span class="icon">🏆</span> Score <b id="score">0</b></div>
+      <div class="stat-pill"><span class="icon">🔥</span> Streak <b id="streak">0</b></div>
+      <div class="stat-pill"><span class="icon">🎯</span> Accuracy <b id="acc">0%</b></div>
+      <button class="btn-reset" id="resetBtn">Reset</button>
+    </div>
+  </header>
+
+  <!-- MODE TABS -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tabS2S">Symbol → Sound</button>
+    <button class="mode-tab" id="tabSd2Sy">Sound → Symbol</button>
+    <button class="mode-tab" id="tabConf">Confusables</button>
+  </div>
+
+  <!-- RECENT MISTAKES -->
+  <div class="mistakes-bar" id="mistakesBar">
+    <span class="mistakes-label">Recent mistakes</span>
+    <span class="mistakes-empty" id="mistakesEmpty">None yet — keep going!</span>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-layout">
+
+    <!-- SETTINGS COLUMN -->
+    <aside class="settings-col">
+
+      <!-- Script & Randomisation -->
+      <div class="settings-section open" id="secGame">
+        <div class="settings-section-header" onclick="toggleSection('secGame')">
+          <span><span class="section-icon">🎮</span>Gameplay</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="settings-body">
+          <div class="setting-row">
+            <div><div class="setting-label">Script</div></div>
+            <select class="compact-select" id="scriptSelect">
+              <option value="hiragana">Hiragana</option>
+              <option value="katakana">Katakana</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-label">Random mode</div></div>
+            <select class="compact-select" id="randomModeSelect">
+              <option value="cycle">Cycle shuffle</option>
+              <option value="balanced">Balanced</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Focus missed</div>
+              <div class="setting-sub">Only show kana you got wrong</div>
+            </div>
+            <label class="toggle-wrap"><input type="checkbox" id="focusMissed"><span class="toggle-track"></span></label>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Study weakest</div>
+              <div class="setting-sub">Weighted toward your weak spots</div>
+            </div>
+            <label class="toggle-wrap"><input type="checkbox" id="studyWeakest"><span class="toggle-track"></span></label>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Hard mode</div>
+              <div class="setting-sub">Similar-looking distractors</div>
+            </div>
+            <label class="toggle-wrap"><input type="checkbox" id="hardMode"><span class="toggle-track"></span></label>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Auto-advance</div>
+              <div class="setting-sub">Move on after correct answer</div>
+            </div>
+            <label class="toggle-wrap"><input type="checkbox" id="autoAdvance" checked><span class="toggle-track"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timer -->
+      <div class="settings-section" id="secTimer">
+        <div class="settings-section-header" onclick="toggleSection('secTimer')">
+          <span><span class="section-icon">⏱</span>Timer</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="settings-body">
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Timed mode</div>
+            </div>
+            <label class="toggle-wrap"><input type="checkbox" id="timedMode"><span class="toggle-track"></span></label>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-label">Time limit</div></div>
+            <select class="compact-select" id="timeSelect">
+              <option value="2">2 s</option>
+              <option value="3">3 s</option>
+              <option value="5" selected>5 s</option>
+              <option value="8">8 s</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Appearance -->
+      <div class="settings-section" id="secAppear">
+        <div class="settings-section-header" onclick="toggleSection('secAppear')">
+          <span><span class="section-icon">🎨</span>Appearance</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="settings-body">
+          <div class="setting-row">
+            <div><div class="setting-label">Kana font</div></div>
+            <select class="compact-select" id="fontSelect">
+              <option value="'Noto Sans JP',sans-serif">Noto Sans JP</option>
+              <option value="'M PLUS Rounded 1c',sans-serif">M PLUS Rounded</option>
+              <option value="'Sawarabi Mincho',serif">Sawarabi Mincho</option>
+              <option value="'BIZ UDGothic',sans-serif">BIZ UDGothic</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-label">Text size</div></div>
+            <select class="compact-select" id="fontSizeSelect">
+              <option value="1">Normal</option>
+              <option value="1.22">Large</option>
+              <option value="1.5">Extra large</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Streak sound</div>
+            </div>
+            <label class="toggle-wrap"><input type="checkbox" id="streakSound"><span class="toggle-track"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row Selection -->
+      <div class="settings-section open" id="secRows">
+        <div class="settings-section-header" onclick="toggleSection('secRows')">
+          <span><span class="section-icon">📋</span>Rows</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="settings-body">
+          <div class="rows-grid" id="rowsGrid"></div>
+        </div>
+      </div>
+
+      <!-- Custom Groups -->
+      <div class="settings-section" id="secGroups">
+        <div class="settings-section-header" onclick="toggleSection('secGroups')">
+          <span><span class="section-icon">📁</span>Custom Groups</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="settings-body">
+          <div class="group-section">
+            <div class="group-row">
+              <input class="text-input" id="newGroupName" type="text" placeholder="Group name" maxlength="32">
+              <button class="btn btn-ghost" id="createGroupBtn">Create</button>
+              <select class="compact-select" id="groupSelect" style="max-width:none;flex:1"></select>
+            </div>
+            <div id="groupList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Show selected chars -->
+      <div class="settings-section" id="secChars">
+        <div class="settings-section-header" onclick="toggleSection('secChars')">
+          <span><span class="section-icon">🔤</span>Selected Characters</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="settings-body">
+          <div class="char-list" id="charList"></div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- GAME COLUMN -->
+    <main class="game-col">
+
+      <div class="game-card">
+        <!-- Prompt side -->
+        <div class="prompt-side">
+          <div class="prompt-label" id="promptLabel">Which sound matches this symbol?</div>
+          <div class="mode-badge-pill" id="modeBadge">Cycle shuffle</div>
+
+          <div class="timer-wrap timer-hidden" id="timerWrap">
+            <div class="timer-meta"><span>Time left</span><span id="timerText">5.0s</span></div>
+            <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+          </div>
+
+          <div class="kana-display" id="kanaDisplay">あ</div>
+          <div class="hint-text" id="hintText">Tip: guess fast, then learn from feedback.</div>
+          <div class="feedback-msg" id="feedbackMsg"></div>
+        </div>
+
+        <!-- Answer side -->
+        <div class="answer-side">
+          <div class="choices-grid" id="choicesGrid"></div>
+          <div>
+            <div class="action-bar">
+              <button class="btn btn-ghost" id="trainBtn" title="Add to custom group">＋ Train</button>
+              <button class="btn btn-reveal" id="revealBtn" title="Show answer (R)">👁 Reveal</button>
+              <button class="btn btn-primary" id="nextBtn" title="Next (N)">Next →</button>
+            </div>
+            <div class="kb-hint" style="margin-top:8px">
+              <kbd>1</kbd>–<kbd>4</kbd> answer &nbsp;·&nbsp; <kbd>N</kbd> next &nbsp;·&nbsp; <kbd>R</kbd> reveal
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- INSIGHTS COLUMN -->
+    <aside class="insights-col">
+
+      <div class="insights-card open" id="insWeakest">
+        <div class="insights-header" onclick="toggleInsight('insWeakest')">
+          <span class="ih-left"><span class="ih-icon">📉</span>Weakest Kana</span>
+          <span class="ih-chevron">▼</span>
+        </div>
+        <div class="insights-body" id="weakestBody">
+          <div class="empty-state">Play a few rounds and your weakest kana will appear here.</div>
+        </div>
+      </div>
+
+      <div class="insights-card open" id="insRowProg">
+        <div class="insights-header" onclick="toggleInsight('insRowProg')">
+          <span class="ih-left"><span class="ih-icon">📊</span>Progress by Row</span>
+          <span class="ih-chevron">▼</span>
+        </div>
+        <div class="insights-body" id="rowProgressBody">
+          <div class="empty-state">Row accuracy appears after a few answers.</div>
+        </div>
+      </div>
+
+      <div class="insights-card" id="insPull">
+        <div class="insights-header" onclick="toggleInsight('insPull')">
+          <span class="ih-left"><span class="ih-icon">📈</span>Pull Distribution</span>
+          <span class="ih-chevron">▼</span>
+        </div>
+        <div class="insights-body" id="pullBody">
+          <div class="pull-body-inner">
+            <div class="empty-state">Pull percentages appear here once you start playing.</div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+// ═══════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════
+const H_ROWS = {
+  vowels: { label: "Vowels (あいうえお)", chars: [["あ","a"],["い","i"],["う","u"],["え","e"],["お","o"]] },
+  k:      { label: "K row (かきくけこ)",   chars: [["か","ka"],["き","ki"],["く","ku"],["け","ke"],["こ","ko"]] },
+  s:      { label: "S row (さしすせそ)",   chars: [["さ","sa"],["し","shi"],["す","su"],["せ","se"],["そ","so"]] },
+  t:      { label: "T row (たちつてと)",   chars: [["た","ta"],["ち","chi"],["つ","tsu"],["て","te"],["と","to"]] },
+  n:      { label: "N row (なにぬねの)",   chars: [["な","na"],["に","ni"],["ぬ","nu"],["ね","ne"],["の","no"]] },
+  h:      { label: "H row (はひふへほ)",   chars: [["は","ha"],["ひ","hi"],["ふ","fu"],["へ","he"],["ほ","ho"]] },
+  m:      { label: "M row (まみむめも)",   chars: [["ま","ma"],["み","mi"],["む","mu"],["め","me"],["も","mo"]] },
+  y:      { label: "Y row (やゆよ)",       chars: [["や","ya"],["ゆ","yu"],["よ","yo"]] },
+  r:      { label: "R row (らりるれろ)",   chars: [["ら","ra"],["り","ri"],["る","ru"],["れ","re"],["ろ","ro"]] },
+  w:      { label: "W + ん (わをん)",      chars: [["わ","wa"],["を","wo"],["ん","n"]] }
+};
+const K_ROWS = {
+  vowels: { label: "Vowels (アイウエオ)", chars: [["ア","a"],["イ","i"],["ウ","u"],["エ","e"],["オ","o"]] },
+  k:      { label: "K row (カキクケコ)",   chars: [["カ","ka"],["キ","ki"],["ク","ku"],["ケ","ke"],["コ","ko"]] },
+  s:      { label: "S row (サシスセソ)",   chars: [["サ","sa"],["シ","shi"],["ス","su"],["セ","se"],["ソ","so"]] },
+  t:      { label: "T row (タチツテト)",   chars: [["タ","ta"],["チ","chi"],["ツ","tsu"],["テ","te"],["ト","to"]] },
+  n:      { label: "N row (ナニヌネノ)",   chars: [["ナ","na"],["ニ","ni"],["ヌ","nu"],["ネ","ne"],["ノ","no"]] },
+  h:      { label: "H row (ハヒフヘホ)",   chars: [["ハ","ha"],["ヒ","hi"],["フ","fu"],["ヘ","he"],["ホ","ho"]] },
+  m:      { label: "M row (マミムメモ)",   chars: [["マ","ma"],["ミ","mi"],["ム","mu"],["メ","me"],["モ","mo"]] },
+  y:      { label: "Y row (ヤユヨ)",       chars: [["ヤ","ya"],["ユ","yu"],["ヨ","yo"]] },
+  r:      { label: "R row (ラリルレロ)",   chars: [["ラ","ra"],["リ","ri"],["ル","ru"],["レ","re"],["ロ","ro"]] },
+  w:      { label: "W + ン (ワヲン)",      chars: [["ワ","wa"],["ヲ","wo"],["ン","n"]] }
+};
+const SCRIPTS = { hiragana: H_ROWS, katakana: K_ROWS };
+
+const CONFUSABLES = {
+  hiragana: [["さ","sa"],["き","ki"],["ち","chi"],["て","te"],["に","ni"],
+    ["ぬ","nu"],["め","me"],["ね","ne"],["は","ha"],["ほ","ho"],
+    ["わ","wa"],["れ","re"],["る","ru"],["ろ","ro"],["む","mu"],
+    ["う","u"],["つ","tsu"],["り","ri"],["い","i"],["ら","ra"],
+    ["こ","ko"],["そ","so"],["し","shi"],["の","no"]],
+  katakana: [["シ","shi"],["ツ","tsu"],["ソ","so"],["ン","n"],
+    ["ア","a"],["マ","ma"],["ナ","na"],["ク","ku"],["ロ","ro"],["コ","ko"],
+    ["ニ","ni"],["チ","chi"],["テ","te"],["ケ","ke"],["ウ","u"],
+    ["ラ","ra"],["レ","re"],["フ","fu"],["ワ","wa"]]
+};
+
+const CONFUSABLE_MAP = {
+  hiragana: {
+    "さ":["き","ち","た","す"],"き":["さ","ち","に","け"],"ち":["さ","き","て","に"],
+    "ぬ":["め","ね","る","の"],"め":["ぬ","ね","る","の"],"ね":["ぬ","め","れ","わ"],
+    "は":["ほ","わ","け","へ"],"ほ":["は","わ","け","ほ"],"わ":["ね","れ","は","ら"],
+    "れ":["わ","ね","は","ら"],"る":["ぬ","め","ろ","ら"],"ろ":["る","ぬ","め","ら"],
+    "り":["い","し","ひ","に"],"い":["り","し","ひ","に"],"う":["つ","っ","ぅ","お"],
+    "つ":["う","っ","し","づ"],"し":["り","い","く","つ"],"の":["ぬ","め","な","も"],
+    "こ":["ご","と","に","そ"],"そ":["こ","ご","ぞ","さ"],"む":["ぬ","め","も","ふ"],
+    "ら":["る","ろ","れ","ら"],"に":["き","ち","け","こ"],"て":["ち","さ","た","で"]
+  },
+  katakana: {
+    "シ":["ツ","ソ","ン","チ"],"ツ":["シ","ソ","ン","ス"],"ソ":["シ","ツ","ン","ノ"],
+    "ン":["シ","ツ","ソ","ウ"],"ア":["マ","ナ","ヤ","ア"],"マ":["ア","ナ","ム","マ"],
+    "ナ":["ア","マ","メ","ナ"],"ク":["フ","ワ","ヲ","ク"],"フ":["ク","ワ","ヲ","フ"],
+    "ロ":["コ","ニ","ロ","ヨ"],"コ":["ロ","ニ","コ","ヨ"],"ニ":["ロ","コ","ユ","ニ"],
+    "チ":["テ","ケ","シ","チ"],"テ":["チ","ケ","ナ","テ"],"ケ":["テ","チ","カ","ケ"],
+    "ウ":["ン","ス","エ","ウ"],"ラ":["レ","ワ","ヲ","ラ"],"レ":["ラ","ワ","ヲ","レ"],
+    "ワ":["ラ","レ","ヲ","ワ"]
+  }
+};
+
+const DEFAULT_ROWS        = ["vowels"];
+const WEAKEST_LIMIT       = 5;
+const RECENT_LIMIT        = 8;
+const RECENT_MISTAKES_MAX = 5;
+const LS_KEY              = "kana_v13";
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+const S = {
+  script: "hiragana", mode: "symbolToSound", randomMode: "cycle",
+  selectedRows: [...DEFAULT_ROWS], selectedGroups: [], customGroups: {},
+  current: null, lastQuestion: null, locked: false,
+  score: 0, streak: 0, correct: 0, total: 0,
+  missed: new Set(),
+  focusMissed: false, studyWeakest: false, hardMode: false,
+  autoAdvance: true, timedMode: false, streakSound: false,
+  timeLimit: 5, kanaFont: "'Noto Sans JP',sans-serif", fontScale: 1,
+  // runtime only
+  timerInterval: null, timerEndAt: null, questionShownAt: 0,
+  recentKeys: [], shuffleBag: [],
+  audioCtx: null,
+  recentMistakes: [],
+  // tracked separately to avoid redundant renders
+  questionPulls: {}, questionStats: {},
+  // dirty flags
+  _statsDirty: false, _weakDirty: false, _pullDirty: false,
+};
+
+// ═══════════════════════════════════════════
+//  PERSIST
+// ═══════════════════════════════════════════
+function loadState() {
+  try {
+    const d = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+    if (!d) return;
+    const str = v => typeof v === "string" ? v : null;
+    const bool = (v, def) => typeof v === "boolean" ? v : def;
+    S.script        = str(d.script) || "hiragana";
+    S.mode          = str(d.mode) || "symbolToSound";
+    S.randomMode    = str(d.randomMode) || "cycle";
+    S.selectedRows  = Array.isArray(d.selectedRows) && d.selectedRows.length ? d.selectedRows : [...DEFAULT_ROWS];
+    S.selectedGroups= Array.isArray(d.selectedGroups) ? d.selectedGroups : [];
+    S.customGroups  = d.customGroups && typeof d.customGroups === "object" ? d.customGroups : {};
+    S.score         = d.score | 0;
+    S.streak        = d.streak | 0;
+    S.correct       = d.correct | 0;
+    S.total         = d.total | 0;
+    S.missed        = new Set(Array.isArray(d.missed) ? d.missed : []);
+    S.focusMissed   = bool(d.focusMissed, false);
+    S.studyWeakest  = bool(d.studyWeakest, false);
+    S.hardMode      = bool(d.hardMode, false);
+    S.autoAdvance   = bool(d.autoAdvance, true);
+    S.timedMode     = bool(d.timedMode, false);
+    S.streakSound   = bool(d.streakSound, false);
+    S.timeLimit     = Number(d.timeLimit) || 5;
+    S.kanaFont      = str(d.kanaFont) || "'Noto Sans JP',sans-serif";
+    S.fontScale     = Number(d.fontScale) || 1;
+    S.recentMistakes= Array.isArray(d.recentMistakes) ? d.recentMistakes : [];
+    S.questionPulls = d.questionPulls && typeof d.questionPulls === "object" ? d.questionPulls : {};
+    S.questionStats = d.questionStats && typeof d.questionStats === "object" ? d.questionStats : {};
+  } catch(e) { console.warn("Load failed", e); }
+}
+
+let _saveTimer = null;
+function scheduleSave() {
+  if (_saveTimer) return;
+  _saveTimer = setTimeout(() => {
+    _saveTimer = null;
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      script: S.script, mode: S.mode, randomMode: S.randomMode,
+      selectedRows: S.selectedRows, selectedGroups: S.selectedGroups,
+      customGroups: S.customGroups, score: S.score, streak: S.streak,
+      correct: S.correct, total: S.total, missed: [...S.missed],
+      focusMissed: S.focusMissed, studyWeakest: S.studyWeakest,
+      hardMode: S.hardMode, autoAdvance: S.autoAdvance,
+      timedMode: S.timedMode, streakSound: S.streakSound,
+      timeLimit: S.timeLimit, kanaFont: S.kanaFont, fontScale: S.fontScale,
+      recentMistakes: S.recentMistakes,
+      questionPulls: S.questionPulls, questionStats: S.questionStats
+    }));
+  }, 400);
+}
+
+// ═══════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════
+const randInt = n => Math.floor(Math.random() * n);
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) { const j = randInt(i+1); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function chooseWeighted(items) {
+  const tot = items.reduce((s,x) => s + x.w, 0);
+  if (tot <= 0) return items[randInt(items.length)].p;
+  let r = Math.random() * tot;
+  for (const x of items) { r -= x.w; if (r <= 0) return x.p; }
+  return items[items.length - 1].p;
+}
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const samePair = (a, b) => !!(a && b && a[0] === b[0] && a[1] === b[1]);
+const getRows  = () => SCRIPTS[S.script];
+
+// ═══════════════════════════════════════════
+//  POOL
+// ═══════════════════════════════════════════
+function getSelectedPool() {
+  const rows = getRows(), map = new Map();
+  for (const k of S.selectedRows) {
+    if (rows[k]) for (const p of rows[k].chars) map.set(p[0]+"|"+p[1], p);
+  }
+  for (const g of S.selectedGroups) {
+    const grp = S.customGroups[g];
+    if (Array.isArray(grp)) for (const p of grp) if (Array.isArray(p) && p.length===2) map.set(p[0]+"|"+p[1], p);
+  }
+  return [...map.values()];
+}
+
+function getConfusablesPool() {
+  const seen = new Set();
+  return CONFUSABLES[S.script].filter(p => { if (seen.has(p[0])) return false; seen.add(p[0]); return true; });
+}
+
+function getCurrentPool() {
+  let pool = S.mode === "confusables" ? getConfusablesPool() : getSelectedPool();
+  if (S.focusMissed && S.mode !== "confusables") {
+    const m = pool.filter(p => S.missed.has(qKey(p)));
+    if (m.length) pool = m;
+  }
+  if (S.studyWeakest && S.mode !== "confusables") {
+    const ranked = rankWeakest(pool);
+    const src = ranked.filter(x => x.s.shown > 0 || x.s.wrong > 0).length >= 2
+      ? ranked.filter(x => x.s.shown > 0 || x.s.wrong > 0)
+      : ranked;
+    const top = src.slice(0, Math.min(WEAKEST_LIMIT, src.length)).map(x => x.p);
+    if (top.length) pool = top;
+  }
+  return pool;
+}
+
+// ═══════════════════════════════════════════
+//  QUESTION STATS
+// ═══════════════════════════════════════════
+function qKey(pair) { return S.script+":"+S.mode+":"+pair[0]+":"+pair[1]; }
+
+function qStats(pair) {
+  const k = qKey(pair);
+  if (!S.questionStats[k]) S.questionStats[k] = { shown:0, correct:0, wrong:0, timeouts:0, totalMs:0, avgMs:0 };
+  return S.questionStats[k];
+}
+
+function pullCount(pair) { return S.questionPulls[qKey(pair)] || 0; }
+
+function recordPull(pair) {
+  const k = qKey(pair);
+  S.questionPulls[k] = (S.questionPulls[k] || 0) + 1;
+  qStats(pair).shown++;
+  S.recentKeys.push(k);
+  if (S.recentKeys.length > RECENT_LIMIT) S.recentKeys.shift();
+}
+
+function recordResult(pair, correct, timeout, ms, count = true) {
+  if (!count) return;
+  const st = qStats(pair);
+  if (timeout)       st.timeouts++;
+  else if (correct)  st.correct++;
+  else               st.wrong++;
+  if (typeof ms === "number" && isFinite(ms) && ms >= 0) {
+    st.totalMs += ms;
+    const n = st.correct + st.wrong;
+    if (n > 0) st.avgMs = st.totalMs / n;
+  }
+}
+
+// ═══════════════════════════════════════════
+//  WEAKNESS SCORING
+// ═══════════════════════════════════════════
+function weaknessScore(pair, minPull, maxMs) {
+  const st = qStats(pair), gap = pullCount(pair) - minPull;
+  const pb = Math.max(0, 8 - gap * 2.2);
+  const ww = st.wrong * 2.0, tw = st.timeouts * 2.6;
+  const n = st.correct + st.wrong;
+  const aw = n >= 2 ? (1 - st.correct / n) * 5.5 : 0;
+  const sw = st.avgMs > 0 && maxMs > 0 ? (st.avgMs / maxMs) * 2.2 : 0;
+  const mw = S.missed.has(qKey(pair)) ? 1.8 : 0;
+  return 1 + pb + ww + tw + aw + sw + mw;
+}
+
+function fairnessScore(pair, minPull) {
+  return Math.max(0.2, 10 - (pullCount(pair) - minPull) * 2.3);
+}
+
+function recentPenalty(pair) {
+  const k = qKey(pair), idx = S.recentKeys.lastIndexOf(k);
+  if (idx === -1) return 1;
+  const d = S.recentKeys.length - 1 - idx;
+  return d === 0 ? 0.03 : d === 1 ? 0.10 : d <= 3 ? 0.22 : d <= 5 ? 0.42 : d <= 7 ? 0.70 : 1;
+}
+
+function rankWeakest(pool) {
+  if (!pool.length) return [];
+  const pulls = pool.map(pullCount);
+  const minPull = Math.min(...pulls);
+  const maxMs   = Math.max(...pool.map(p => qStats(p).avgMs || 0), 1);
+  return pool.map(p => {
+    const st = qStats(p), n = st.correct + st.wrong;
+    return { p, s: st, score: weaknessScore(p, minPull, maxMs),
+      acc: n > 0 ? Math.round(st.correct / n * 100) : null };
+  }).sort((a,b) => b.score - a.score);
+}
+
+// ═══════════════════════════════════════════
+//  SHUFFLE BAG
+// ═══════════════════════════════════════════
+function clearBag() { S.shuffleBag = []; }
+function clearRecent() { S.recentKeys = []; }
+
+function buildBag(pool) {
+  const bag = shuffle([...pool]);
+  if (S.lastQuestion && bag.length > 1 && samePair(bag[0], S.lastQuestion)) {
+    const i = 1 + randInt(bag.length - 1);
+    [bag[0], bag[i]] = [bag[i], bag[0]];
+  }
+  return bag;
+}
+
+function nextShuffled(pool) {
+  const keys = new Set(pool.map(qKey));
+  S.shuffleBag = S.shuffleBag.filter(p => keys.has(qKey(p)));
+  if (!S.shuffleBag.length) S.shuffleBag = buildBag(pool);
+  return S.shuffleBag.shift();
+}
+
+function pickPair(pool) {
+  const avoidLast = (candidates, picked) => {
+    if (S.lastQuestion && pool.length > 1 && samePair(picked, S.lastQuestion)) {
+      const f = candidates.filter(x => !samePair(x.p, S.lastQuestion));
+      if (f.length) return chooseWeighted(f);
+    }
+    return picked;
+  };
+
+  if (S.mode === "confusables" || !S.studyWeakest) {
+    if (S.randomMode === "cycle" && S.mode !== "confusables") return nextShuffled(pool);
+    const pulls = pool.map(pullCount), minPull = Math.min(...pulls);
+    const cands = pool.map(p => ({ p, w: Math.max(0.01, fairnessScore(p, minPull) * recentPenalty(p)) }));
+    return avoidLast(cands, chooseWeighted(cands));
+  }
+  const pulls = pool.map(pullCount), minPull = Math.min(...pulls);
+  const maxMs  = Math.max(...pool.map(p => qStats(p).avgMs || 0), 1);
+  const cands  = pool.map(p => ({ p, w: Math.max(0.01, weaknessScore(p, minPull, maxMs)) }));
+  return avoidLast(cands, chooseWeighted(cands));
+}
+
+// ═══════════════════════════════════════════
+//  HARD MODE DISTRACTORS
+// ═══════════════════════════════════════════
+function hardDistractors(correctChar, pool, count) {
+  const cm = CONFUSABLE_MAP[S.script];
+  const conf = (cm[correctChar] || []).filter(c => c !== correctChar && pool.includes(c));
+  const r = shuffle([...conf]).slice(0, count);
+  if (r.length < count) {
+    shuffle(pool.filter(c => c !== correctChar && !r.includes(c)))
+      .slice(0, count - r.length).forEach(c => r.push(c));
+  }
+  return r.slice(0, count);
+}
+
+// ═══════════════════════════════════════════
+//  DOM HELPERS
+// ═══════════════════════════════════════════
+const $  = id => document.getElementById(id);
+const el = {
+  score:        $("score"),
+  streak:       $("streak"),
+  acc:          $("acc"),
+  kana:         $("kanaDisplay"),
+  choices:      $("choicesGrid"),
+  feedback:     $("feedbackMsg"),
+  promptLabel:  $("promptLabel"),
+  modeBadge:    $("modeBadge"),
+  hintText:     $("hintText"),
+  timerWrap:    $("timerWrap"),
+  timerFill:    $("timerFill"),
+  timerText:    $("timerText"),
+  weakestBody:  $("weakestBody"),
+  rowProgBody:  $("rowProgressBody"),
+  pullBody:     $("pullBody"),
+  mistakesBar:  $("mistakesBar"),
+  mistakesEmpty:$("mistakesEmpty"),
+  rowsGrid:     $("rowsGrid"),
+  charList:     $("charList"),
+  groupList:    $("groupList"),
+  groupSelect:  $("groupSelect"),
+  newGroupName: $("newGroupName"),
+  tabS2S:       $("tabS2S"),
+  tabSd2Sy:     $("tabSd2Sy"),
+  tabConf:      $("tabConf"),
+};
+
+function setFeedback(text, kind) {
+  el.feedback.innerHTML = "";
+  if (!text) return;
+  if (kind) {
+    const t = document.createElement("span");
+    t.className = "fb-tag " + kind;
+    t.textContent = kind === "good" ? "Correct" : kind === "warn" ? "Revealed" : "Wrong";
+    el.feedback.append(t);
+  }
+  const s = document.createElement("span");
+  s.textContent = text;
+  el.feedback.append(s);
+}
+
+function flashKana(type) {
+  el.kana.classList.remove("flash-correct", "flash-wrong");
+  void el.kana.offsetWidth;
+  el.kana.classList.add(type === "correct" ? "flash-correct" : "flash-wrong");
+  setTimeout(() => el.kana.classList.remove("flash-correct", "flash-wrong"), type === "correct" ? 500 : 920);
+}
+
+function showCorrectOnDisplay(correctChar) {
+  if (S.mode === "soundToSymbol") {
+    el.kana.textContent = correctChar;
+  }
+  flashKana("wrong");
+}
+
+// ═══════════════════════════════════════════
+//  STATS UI  (batched, no-flicker)
+// ═══════════════════════════════════════════
+let _rafStats = null;
+function updateStatsUI() {
+  if (_rafStats) return;
+  _rafStats = requestAnimationFrame(() => {
+    _rafStats = null;
+    el.score.textContent  = S.score;
+    el.streak.textContent = S.streak;
+    el.acc.textContent    = (S.total === 0 ? 0 : Math.round(S.correct / S.total * 100)) + "%";
+  });
+}
+
+// ═══════════════════════════════════════════
+//  MODE UI
+// ═══════════════════════════════════════════
+function updateModeUI() {
+  el.tabS2S.classList.toggle("active",   S.mode === "symbolToSound");
+  el.tabSd2Sy.classList.toggle("active", S.mode === "soundToSymbol");
+  el.tabConf.classList.toggle("active",  S.mode === "confusables");
+
+  el.promptLabel.textContent =
+    S.mode === "soundToSymbol" ? "Which symbol matches this sound?" :
+    S.mode === "confusables"   ? "Which sound matches this symbol?" :
+                                 "Which sound matches this symbol?";
+
+  const modeLabel =
+    S.mode === "confusables"  ? "Confusables" :
+    S.studyWeakest            ? "Study weakest" :
+    S.randomMode === "cycle"  ? "Cycle shuffle" : "Balanced random";
+  el.modeBadge.textContent = modeLabel;
+
+  el.hintText.textContent =
+    S.mode === "confusables" ? "Confusables: commonly mixed-up kana. Concentrate!" :
+    S.studyWeakest           ? "Weighted toward your weakest kana." :
+    S.randomMode === "cycle" ? "Every kana appears once per cycle before repeating." :
+                               "Balanced: controlled randomness, repeat protection.";
+}
+
+// ═══════════════════════════════════════════
+//  TIMER
+// ═══════════════════════════════════════════
+function stopTimer() {
+  if (S.timerInterval) { clearInterval(S.timerInterval); S.timerInterval = null; }
+  S.timerEndAt = null;
+}
+function renderTimer(ms) {
+  const pct = S.timeLimit <= 0 ? 0 : Math.max(0, ms) / (S.timeLimit * 1000) * 100;
+  el.timerFill.style.width = pct + "%";
+  el.timerText.textContent = (Math.max(0, ms) / 1000).toFixed(1) + "s";
+  el.timerFill.classList.toggle("warn",   pct <= 35 && pct > 15);
+  el.timerFill.classList.toggle("danger", pct <= 15);
+}
+function startTimer() {
+  stopTimer();
+  if (!S.timedMode || S.locked || !S.current) return;
+  S.timerEndAt = Date.now() + S.timeLimit * 1000;
+  renderTimer(S.timeLimit * 1000);
+  S.timerInterval = setInterval(() => {
+    const r = S.timerEndAt - Date.now();
+    renderTimer(r);
+    if (r <= 0) { stopTimer(); handleTimeUp(); }
+  }, 80);
+}
+function updateTimerVisibility() {
+  el.timerWrap.classList.toggle("timer-hidden", !S.timedMode);
+  $("timeSelect").disabled = !S.timedMode;
+}
+
+// ═══════════════════════════════════════════
+//  AUDIO
+// ═══════════════════════════════════════════
+function getAudioCtx() {
+  const C = window.AudioContext || window.webkitAudioContext;
+  if (!C) return null;
+  if (!S.audioCtx) S.audioCtx = new C();
+  if (S.audioCtx.state === "suspended") S.audioCtx.resume().catch(() => {});
+  return S.audioCtx;
+}
+const NF = {"E3":164.81,"F#3":185,"G3":196,"A3":220,"B3":246.94,"C4":261.63,"D4":293.66,"E4":329.63,"G4":392};
+function playTone(freq, t, dur=0.14, vol=0.15) {
+  const ctx = getAudioCtx(); if (!ctx || !freq) return;
+  const osc = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter();
+  f.type = "lowpass"; f.frequency.value = 3000;
+  osc.type = "triangle"; osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.005);
+  g.gain.exponentialRampToValueAtTime(vol * 0.5, t + dur * 0.35);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  osc.connect(g); g.connect(f); f.connect(ctx.destination);
+  osc.start(t); osc.stop(t + dur + 0.02);
+}
+function playStreakSound() {
+  if (!S.streakSound) return;
+  const ctx = getAudioCtx(); if (!ctx) return;
+  const now = ctx.currentTime + 0.01, s = S.streak;
+  const seq = s <= 4
+    ? [{ f: NF[["E3","F#3","G3","A3"][s-1]], t: now }]
+    : s === 5 ? [[NF.E3,0],[NF.E3,.09],[NF.E3,.18],[NF.E4,.30]].map(([f,d])=>({f,t:now+d}))
+    : s === 6 ? [[NF.E3,0],[NF.G3,.08],[NF.C4,.18],[NF.E4,.30]].map(([f,d])=>({f,t:now+d}))
+    : [[NF.E3,0],[NF.G3,.08],[NF.B3,.16],[NF.E4,.28],[NF.G4,.28],[NF.D4,.46],[NF.E4,.56]].map(([f,d])=>({f,t:now+d}));
+  seq.forEach(({f,t}) => playTone(f, t));
+}
+
+// ═══════════════════════════════════════════
+//  RECENT MISTAKES
+// ═══════════════════════════════════════════
+function addMistake(pair) {
+  const [ch, ro] = pair;
+  S.recentMistakes = S.recentMistakes.filter(m => m.ch !== ch || m.ro !== ro);
+  S.recentMistakes.unshift({ ch, ro });
+  if (S.recentMistakes.length > RECENT_MISTAKES_MAX) S.recentMistakes.length = RECENT_MISTAKES_MAX;
+  renderMistakes();
+}
+function renderMistakes() {
+  [...el.mistakesBar.querySelectorAll(".mistake-badge")].forEach(b => b.remove());
+  el.mistakesEmpty.style.display = S.recentMistakes.length ? "none" : "";
+  S.recentMistakes.forEach(({ ch, ro }) => {
+    const b = document.createElement("div");
+    b.className = "mistake-badge";
+    b.title = ch + " = " + ro;
+    b.innerHTML = `<span class="mb-char">${esc(ch)}</span><span class="mb-ro">${esc(ro)}</span>`;
+    el.mistakesBar.appendChild(b);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  ROW SELECTOR
+// ═══════════════════════════════════════════
+function rowAccuracy(rowKey) {
+  const rows = getRows(); if (!rows[rowKey]) return null;
+  let c = 0, w = 0;
+  for (const p of rows[rowKey].chars) { const st = qStats(p); c += st.correct; w += st.wrong; }
+  return c + w === 0 ? null : Math.round(c / (c + w) * 100);
+}
+
+function renderRowSelector() {
+  const rows = getRows();
+  el.rowsGrid.innerHTML = "";
+  for (const [key, row] of Object.entries(rows)) {
+    const checked = S.selectedRows.includes(key);
+    const acc = rowAccuracy(key);
+    let badge = "";
+    if (acc !== null) {
+      const cls = acc >= 80 ? "g" : acc >= 55 ? "m" : "b";
+      badge = `<span class="row-acc-badge ${cls}">${acc}%</span>`;
+    }
+    const lbl = document.createElement("label");
+    lbl.className = "row-opt";
+    lbl.innerHTML = `<input type="checkbox" ${checked?"checked":""}><span class="row-label">${row.label}</span>${badge}`;
+    lbl.querySelector("input").addEventListener("change", e => {
+      if (e.target.checked) { if (!S.selectedRows.includes(key)) S.selectedRows.push(key); }
+      else {
+        S.selectedRows = S.selectedRows.filter(r => r !== key);
+        if (!S.selectedRows.length && !S.selectedGroups.length) S.selectedRows = [...DEFAULT_ROWS];
+      }
+      S.lastQuestion = null; clearBag(); clearRecent();
+      renderRowSelector(); renderCharList(); renderInsights();
+      nextQuestion(); scheduleSave();
+    });
+    el.rowsGrid.appendChild(lbl);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  CHAR LIST
+// ═══════════════════════════════════════════
+function renderCharList() {
+  const pool = getSelectedPool();
+  el.charList.innerHTML = pool.map(([c,r]) =>
+    `<div><span class="mono">${esc(c)}</span> → <span class="mono">${esc(r)}</span></div>`
+  ).join("");
+}
+
+// ═══════════════════════════════════════════
+//  GROUPS
+// ═══════════════════════════════════════════
+function renderGroupSelect() {
+  const names = Object.keys(S.customGroups).sort();
+  el.groupSelect.innerHTML = "";
+  if (!names.length) {
+    el.groupSelect.innerHTML = `<option value="">No groups yet</option>`;
+    return;
+  }
+  names.forEach(n => {
+    const o = document.createElement("option");
+    o.value = n; o.textContent = n;
+    el.groupSelect.appendChild(o);
+  });
+}
+function renderGroupList() {
+  const names = Object.keys(S.customGroups).sort();
+  el.groupList.innerHTML = "";
+  if (!names.length) {
+    el.groupList.innerHTML = `<div style="font-size:13px;color:var(--muted);padding:4px 0">No groups yet. Create one above.</div>`;
+    return;
+  }
+  names.forEach(name => {
+    const pairs = S.customGroups[name] || [];
+    const isSel = S.selectedGroups.includes(name);
+    const card = document.createElement("div");
+    card.className = "group-item-card";
+    card.innerHTML = `
+      <div><div class="gi-name">${esc(name)}</div><div class="gi-count">${pairs.length} kana</div></div>
+      <div class="gi-actions">
+        <label class="toggle-wrap" style="width:32px;height:19px">
+          <input type="checkbox" ${isSel?"checked":""} style="opacity:0;position:absolute">
+          <span class="toggle-track"></span>
+        </label>
+        <button class="btn btn-ghost" style="padding:5px 9px;font-size:12px">Delete</button>
+      </div>`;
+    card.querySelector('input[type=checkbox]').addEventListener("change", e => {
+      if (e.target.checked) { if (!S.selectedGroups.includes(name)) S.selectedGroups.push(name); }
+      else {
+        S.selectedGroups = S.selectedGroups.filter(g => g !== name);
+        if (!S.selectedRows.length && !S.selectedGroups.length) { S.selectedRows = [...DEFAULT_ROWS]; renderRowSelector(); }
+      }
+      S.lastQuestion = null; clearBag(); clearRecent();
+      renderGroupList(); renderCharList(); renderInsights(); nextQuestion(); scheduleSave();
+    });
+    card.querySelector("button").addEventListener("click", () => {
+      delete S.customGroups[name];
+      S.selectedGroups = S.selectedGroups.filter(g => g !== name);
+      if (!S.selectedRows.length && !S.selectedGroups.length) { S.selectedRows = [...DEFAULT_ROWS]; renderRowSelector(); }
+      renderGroupSelect(); renderGroupList(); renderCharList(); renderInsights(); scheduleSave(); nextQuestion();
+    });
+    el.groupList.appendChild(card);
+  });
+}
+function createGroup() {
+  const name = el.newGroupName.value.trim();
+  if (!name) { setFeedback(" Enter a group name.", "bad"); return; }
+  if (S.customGroups[name]) { setFeedback(" Name already exists.", "bad"); return; }
+  S.customGroups[name] = [];
+  S.selectedGroups.push(name);
+  el.newGroupName.value = "";
+  renderGroupSelect(); renderGroupList(); scheduleSave();
+  setFeedback(` Group "${name}" created.`, "good");
+}
+function addToGroup() {
+  if (!S.current) { setFeedback(" No current kana.", "bad"); return; }
+  const name = el.groupSelect.value;
+  if (!name || !S.customGroups[name]) { setFeedback(" Choose a group first.", "bad"); return; }
+  const list = S.customGroups[name];
+  const exists = list.some(p => samePair(p, S.current));
+  if (!exists) list.push([...S.current]);
+  if (!S.selectedGroups.includes(name)) S.selectedGroups.push(name);
+  renderGroupList(); renderCharList(); scheduleSave();
+  setFeedback(exists ? ` Already in "${name}".` : ` Added ${S.current[0]} to "${name}".`, "good");
+}
+
+// ═══════════════════════════════════════════
+//  INSIGHTS  (batched, only render when dirty)
+// ═══════════════════════════════════════════
+let _insightsTimer = null;
+function renderInsights() {
+  if (_insightsTimer) return;
+  _insightsTimer = requestAnimationFrame(() => {
+    _insightsTimer = null;
+    _renderWeakest();
+    _renderRowProgress();
+    _renderPullDist();
+  });
+}
+
+function _renderWeakest() {
+  const pool = S.mode === "confusables" ? getConfusablesPool() : getSelectedPool();
+  if (!pool.length) { el.weakestBody.innerHTML = `<div class="empty-state">No kana selected.</div>`; return; }
+  const ranked = rankWeakest(pool).filter(x => x.s.shown > 0 || x.s.wrong > 0).slice(0, WEAKEST_LIMIT);
+  if (!ranked.length) { el.weakestBody.innerHTML = `<div class="empty-state">Play a few rounds and weakest kana appear here.</div>`; return; }
+  el.weakestBody.innerHTML = ranked.map(({ p, s, score, acc }) => {
+    const avg = s.avgMs > 0 ? (s.avgMs/1000).toFixed(1)+"s avg" : "— avg";
+    const accStr = acc !== null ? acc+"% acc" : "— acc";
+    return `<div class="weak-item">
+      <div class="wi-top">
+        <div class="wi-main"><span class="wi-char">${esc(p[0])}</span><span class="wi-ro">${esc(p[1])}</span></div>
+        <span class="wi-score">Score ${score.toFixed(1)}</span>
+      </div>
+      <div class="wi-meta">
+        <span>Shown ${s.shown}</span><span>Wrong ${s.wrong}</span>
+        <span>Timeouts ${s.timeouts}</span><span>${accStr}</span><span>${avg}</span>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function _renderRowProgress() {
+  const rows = getRows();
+  const items = Object.entries(rows).map(([k, r]) => ({ k, label: r.label, acc: rowAccuracy(k) })).filter(x => x.acc !== null);
+  if (!items.length) { $("rowProgressBody").innerHTML = `<div class="empty-state">Row accuracy appears after a few answers.</div>`; return; }
+  $("rowProgressBody").innerHTML = items.map(({ label, acc }) => {
+    const cls = acc >= 80 ? "" : acc >= 55 ? "w" : "b";
+    return `<div class="rp-item">
+      <div class="rp-header"><span class="rp-name">${label}</span><span class="rp-pct">${acc}%</span></div>
+      <div class="rp-bar"><div class="rp-fill ${cls}" style="width:${acc}%"></div></div>
+    </div>`;
+  }).join("");
+}
+
+function _renderPullDist() {
+  const pool = S.mode === "confusables" ? getConfusablesPool() : getSelectedPool();
+  if (!pool.length) { el.pullBody.innerHTML = `<div class="pull-body-inner"><div class="empty-state">No kana selected.</div></div>`; return; }
+  const data = pool.map(p => ({ ch: p[0], ro: p[1], n: pullCount(p) }));
+  const total = data.reduce((s, x) => s + x.n, 0);
+  if (!total) { el.pullBody.innerHTML = `<div class="pull-body-inner"><div class="empty-state">Pull percentages appear once you start playing.</div></div>`; return; }
+  data.sort((a,b) => b.n - a.n);
+  const rows = data.map(({ ch, ro, n }) => {
+    const pct = (n / total * 100).toFixed(1);
+    return `<div class="pull-item">
+      <div class="pi-top">
+        <div class="pi-main"><span class="pi-char">${esc(ch)}</span><span class="pi-ro">${esc(ro)}</span></div>
+        <span class="pi-pct">${pct}%</span>
+      </div>
+      <div class="pi-bar"><div class="pi-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join("");
+  el.pullBody.innerHTML = `<div class="pull-body-inner">${rows}</div>`;
+}
+
+// ═══════════════════════════════════════════
+//  SETTINGS SECTION TOGGLE
+// ═══════════════════════════════════════════
+function toggleSection(id) {
+  document.getElementById(id).classList.toggle("open");
+}
+function toggleInsight(id) {
+  document.getElementById(id).classList.toggle("open");
+}
+
+// ═══════════════════════════════════════════
+//  GAME FLOW
+// ═══════════════════════════════════════════
+function nextQuestion() {
+  stopTimer();
+  S.locked = false;
+  setFeedback("", null);
+  el.kana.classList.remove("flash-correct", "flash-wrong");
+
+  const pool = getCurrentPool();
+  if (!pool.length) { el.kana.textContent = "—"; el.choices.innerHTML = ""; return; }
+
+  const pair = pickPair(pool);
+  S.lastQuestion = pair;
+  S.current      = pair;
+  S.questionShownAt = Date.now();
+  recordPull(pair);
+
+  const [ch, ro] = pair;
+  const s2s = S.mode !== "soundToSymbol";
+
+  el.kana.textContent = s2s ? ch : ro;
+  el.choices.innerHTML = "";
+
+  if (s2s) {
+    const allRo    = [...new Set(pool.map(p => p[1]))];
+    const wrongPool = shuffle(allRo.filter(r => r !== ro));
+    const wrongs    = wrongPool.slice(0, Math.min(3, wrongPool.length));
+    shuffle([ro, ...wrongs]).forEach((v, i) => addChoiceBtn(v, i, false, ro));
+  } else {
+    const allCh     = [...new Set(pool.map(p => p[0]))];
+    const wrongPool = allCh.filter(c => c !== ch);
+    const wrongs    = S.hardMode && wrongPool.length >= 3
+      ? hardDistractors(ch, wrongPool, 3)
+      : shuffle([...wrongPool]).slice(0, 3);
+    shuffle([ch, ...wrongs]).forEach((v, i) => addChoiceBtn(v, i, true, ch));
+  }
+
+  renderInsights();
+  startTimer();
+}
+
+function addChoiceBtn(value, idx, isKana, correctValue) {
+  const btn = document.createElement("button");
+  btn.className = "choice-btn" + (isKana ? " kana" : "");
+  btn.dataset.value = value;
+  btn.innerHTML = `<span class="cn">${idx+1}</span><span>${esc(value)}</span>`;
+  btn.addEventListener("click", () => handleAnswer(value, btn, correctValue));
+  el.choices.appendChild(btn);
+}
+
+function lockButtons() {
+  stopTimer();
+  el.choices.querySelectorAll(".choice-btn").forEach(b => b.disabled = true);
+  S.locked = true;
+}
+
+function highlightCorrect(correctValue) {
+  el.choices.querySelectorAll(".choice-btn").forEach(b => {
+    if (b.dataset.value === correctValue) b.classList.add("correct");
+  });
+}
+
+function handleAnswer(picked, btn, correctValue) {
+  if (S.locked || !S.current) return;
+  const [ch, ro] = S.current;
+  const ms  = Math.max(0, Date.now() - S.questionShownAt);
+  const key = qKey(S.current);
+  S.total++;
+
+  if (picked === correctValue) {
+    S.correct++;
+    S.score += 10 + Math.min(S.streak, 10);
+    S.streak++;
+    S.missed.delete(key);
+    recordResult(S.current, true, false, ms, S.studyWeakest);
+    playStreakSound();
+    btn.classList.add("correct");
+    flashKana("correct");
+    const msg = S.mode !== "soundToSymbol" ? ` ${ch} = ${ro}` : ` ${ro} = ${ch}`;
+    setFeedback(msg, "good");
+    lockButtons();
+    updateStatsUI();
+    scheduleSave();
+    if (S.autoAdvance) setTimeout(nextQuestion, 620);
+  } else {
+    S.streak = 0;
+    S.score  = Math.max(0, S.score - 5);
+    S.missed.add(key);
+    recordResult(S.current, false, false, ms, S.studyWeakest);
+    addMistake(S.current);
+    btn.classList.add("wrong");
+    highlightCorrect(correctValue);
+    showCorrectOnDisplay(ch);
+    const msg = S.mode !== "soundToSymbol" ? ` ${ch} ≠ "${picked}"` : ` ${ro} ≠ "${picked}"`;
+    setFeedback(msg, "bad");
+    lockButtons();
+    updateStatsUI();
+    scheduleSave();
+  }
+  renderInsights();
+}
+
+function handleTimeUp() {
+  if (S.locked || !S.current) return;
+  const [ch, ro] = S.current;
+  const key = qKey(S.current);
+  S.total++; S.streak = 0; S.score = Math.max(0, S.score - 5);
+  S.missed.add(key);
+  addMistake(S.current);
+  recordResult(S.current, false, true, S.timeLimit * 1000, S.studyWeakest);
+  const s2s = S.mode !== "soundToSymbol";
+  highlightCorrect(s2s ? ro : ch);
+  showCorrectOnDisplay(ch);
+  setFeedback(s2s ? ` Time's up — ${ch} = ${ro}` : ` Time's up — ${ro} = ${ch}`, "bad");
+  lockButtons(); updateStatsUI(); scheduleSave(); renderInsights();
+}
+
+function handleReveal() {
+  if (S.locked || !S.current) return;
+  const [ch, ro] = S.current;
+  const key = qKey(S.current);
+  S.total++; S.streak = 0; S.score = Math.max(0, S.score - 5);
+  S.missed.add(key);
+  addMistake(S.current);
+  recordResult(S.current, false, false, S.timeLimit * 1000, false);
+  const s2s = S.mode !== "soundToSymbol";
+  highlightCorrect(s2s ? ro : ch);
+  showCorrectOnDisplay(ch);
+  setFeedback(s2s ? ` ${ch} = ${ro}` : ` ${ro} = ${ch}`, "warn");
+  lockButtons(); updateStatsUI(); scheduleSave(); renderInsights();
+}
+
+function resetStats() {
+  stopTimer();
+  Object.assign(S, { score:0, streak:0, correct:0, total:0,
+    missed: new Set(), lastQuestion: null,
+    questionPulls: {}, questionStats: {}, recentMistakes: [],
+    shuffleBag: [], recentKeys: [] });
+  updateStatsUI(); renderMistakes(); renderInsights(); renderRowSelector();
+  setFeedback(" Stats reset.", null);
+  scheduleSave();
+  nextQuestion();
+}
+
+function setMode(m) {
+  S.mode = m; S.missed = new Set(); S.lastQuestion = null;
+  clearBag(); clearRecent();
+  updateModeUI(); renderInsights(); nextQuestion(); scheduleSave();
+}
+
+function applyFont() {
+  document.documentElement.style.setProperty("--kana-font", S.kanaFont);
+  document.documentElement.style.setProperty("--font-scale", S.fontScale);
+}
+
+// ═══════════════════════════════════════════
+//  WIRE UP CONTROLS
+// ═══════════════════════════════════════════
+el.tabS2S.addEventListener("click",   () => setMode("symbolToSound"));
+el.tabSd2Sy.addEventListener("click", () => setMode("soundToSymbol"));
+el.tabConf.addEventListener("click",  () => setMode("confusables"));
+
+$("scriptSelect").addEventListener("change", e => {
+  S.script = e.target.value; S.missed = new Set(); S.lastQuestion = null;
+  S.selectedRows = [...DEFAULT_ROWS]; S.selectedGroups = [];
+  clearBag(); clearRecent();
+  renderRowSelector(); renderGroupList(); renderCharList(); renderInsights();
+  nextQuestion(); scheduleSave();
+});
+$("randomModeSelect").addEventListener("change", e => {
+  S.randomMode = e.target.value; S.lastQuestion = null; clearBag(); clearRecent();
+  updateModeUI(); nextQuestion(); scheduleSave();
+});
+$("focusMissed").addEventListener("change", e => {
+  S.focusMissed = e.target.checked; S.lastQuestion = null; clearBag(); clearRecent();
+  nextQuestion(); scheduleSave();
+});
+$("studyWeakest").addEventListener("change", e => {
+  S.studyWeakest = e.target.checked; S.lastQuestion = null; clearBag(); clearRecent();
+  updateModeUI(); nextQuestion(); scheduleSave();
+});
+$("hardMode").addEventListener("change", e => {
+  S.hardMode = e.target.checked; S.lastQuestion = null; clearBag(); clearRecent();
+  nextQuestion(); scheduleSave();
+});
+$("autoAdvance").addEventListener("change", e => { S.autoAdvance = e.target.checked; scheduleSave(); });
+$("timedMode").addEventListener("change", e => {
+  S.timedMode = e.target.checked; updateTimerVisibility();
+  S.lastQuestion = null; clearBag(); clearRecent(); nextQuestion(); scheduleSave();
+});
+$("streakSound").addEventListener("change", e => {
+  S.streakSound = e.target.checked; if (S.streakSound) getAudioCtx(); scheduleSave();
+});
+$("timeSelect").addEventListener("change", e => {
+  S.timeLimit = Number(e.target.value); if (S.timedMode) startTimer(); scheduleSave();
+});
+$("fontSelect").addEventListener("change", e => { S.kanaFont = e.target.value; applyFont(); scheduleSave(); });
+$("fontSizeSelect").addEventListener("change", e => { S.fontScale = Number(e.target.value); applyFont(); scheduleSave(); });
+$("createGroupBtn").addEventListener("click", createGroup);
+$("trainBtn").addEventListener("click", addToGroup);
+$("revealBtn").addEventListener("click", handleReveal);
+$("nextBtn").addEventListener("click", () => { S.lastQuestion = S.current; nextQuestion(); });
+$("resetBtn").addEventListener("click", resetStats);
+
+document.addEventListener("keydown", e => {
+  const tag = document.activeElement?.tagName;
+  if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+  if (e.key.toLowerCase() === "n") { S.lastQuestion = S.current; nextQuestion(); return; }
+  if (e.key.toLowerCase() === "r") { handleReveal(); return; }
+  const idx = Number(e.key) - 1;
+  if (Number.isInteger(idx) && idx >= 0 && idx < 4) {
+    const btns = [...el.choices.querySelectorAll(".choice-btn")];
+    if (btns[idx]) btns[idx].click();
+  }
+});
+
+// ═══════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════
+loadState();
+if (!SCRIPTS[S.script])                                     S.script     = "hiragana";
+if (!["symbolToSound","soundToSymbol","confusables"].includes(S.mode)) S.mode = "symbolToSound";
+if (!["cycle","balanced"].includes(S.randomMode))           S.randomMode = "cycle";
+
+// Validate rows
+const validKeys = Object.keys(getRows());
+S.selectedRows  = S.selectedRows.filter(k => validKeys.includes(k));
+if (!S.selectedRows.length && !S.selectedGroups.length) S.selectedRows = [...DEFAULT_ROWS];
+
+// Sync controls
+$("scriptSelect").value    = S.script;
+$("randomModeSelect").value= S.randomMode;
+$("fontSelect").value      = S.kanaFont;
+$("fontSizeSelect").value  = String(S.fontScale);
+$("focusMissed").checked   = S.focusMissed;
+$("studyWeakest").checked  = S.studyWeakest;
+$("hardMode").checked      = S.hardMode;
+$("autoAdvance").checked   = S.autoAdvance;
+$("timedMode").checked     = S.timedMode;
+$("streakSound").checked   = S.streakSound;
+$("timeSelect").value      = String(S.timeLimit);
+
+applyFont();
+renderRowSelector();
+renderGroupSelect();
+renderGroupList();
+renderCharList();
+renderMistakes();
+updateModeUI();
+updateTimerVisibility();
+updateStatsUI();
+renderInsights();
+nextQuestion();
+
+// ── SERVICE WORKER REGISTRATION ──
+if ("serviceWorker" in navigator) {
+  // Build the SW script as a blob so everything stays in one file
+  const SW_VERSION = "kana-v1";
+  const swCode = `
+const CACHE = "${SW_VERSION}";
+const FONTS = [
+  "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=M+PLUS+Rounded+1c:wght@400;700;900&family=Sawarabi+Mincho&family=BIZ+UDGothic:wght@400;700&display=swap"
+];
+
+// On install: cache the page itself and font stylesheet
+self.addEventListener("install", e => {
+  e.waitUntil(
+    caches.open(CACHE).then(cache =>
+      cache.addAll(FONTS).catch(() => {})
+    )
+  );
+  self.skipWaiting();
+});
+
+// On activate: drop old caches
+self.addEventListener("activate", e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+
+// Fetch: cache-first for font requests, network-first for everything else
+self.addEventListener("fetch", e => {
+  const url = e.request.url;
+  if (url.includes("fonts.googleapis.com") || url.includes("fonts.gstatic.com")) {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        if (cached) return cached;
+        return fetch(e.request).then(res => {
+          const clone = res.clone();
+          caches.open(CACHE).then(cache => cache.put(e.request, clone));
+          return res;
+        }).catch(() => cached);
+      })
+    );
+    return;
+  }
+  // For the HTML file itself: network first, fall back to cache
+  if (e.request.mode === "navigate") {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        const clone = res.clone();
+        caches.open(CACHE).then(cache => cache.put(e.request, clone));
+        return res;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+});
+`;
+  const blob = new Blob([swCode], { type: "application/javascript" });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl, { scope: "./" })
+    .then(() => console.log("Kana Game: service worker registered"))
+    .catch(err => console.warn("Kana Game: SW registration failed", err));
+}
+</script>
+</body>
+</html>
