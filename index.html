@@ -431,12 +431,83 @@ body {
   gap: 10px;
 }
 
+/* ── SELF-TEST OVERLAY ── */
+.choices-wrap {
+  position: relative;
+  min-height: 140px;
+}
+
 .choices-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   align-content: start;
 }
+
+/* The blur/hide overlay for self-test mode */
+.selftest-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  border-radius: var(--radius-sm);
+  background: rgba(9,14,28,.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(108,159,255,.18);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: opacity .15s ease;
+}
+
+/* Show the overlay when self-test is active AND choices are hidden */
+.selftest-active .selftest-overlay { display: flex; }
+/* Once revealed (overlay dismissed), hide it */
+.selftest-active.choices-revealed .selftest-overlay { display: none; }
+
+.selftest-overlay-icon {
+  font-size: 32px;
+  opacity: .7;
+}
+
+.selftest-overlay-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: .2px;
+}
+
+.selftest-overlay-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.selftest-overlay:hover .selftest-overlay-label {
+  color: #a8c4ff;
+}
+
+/* Also blur the grid while hidden (layered effect) */
+.selftest-active:not(.choices-revealed) .choices-grid {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Self-test mode badge in the prompt side */
+.selftest-mode-badge {
+  display: none;
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(255,201,77,.08);
+  border: 1px solid rgba(255,201,77,.3);
+  color: #ffe9a0;
+  font-weight: 600;
+}
+.selftest-active-global .selftest-mode-badge { display: inline-flex; }
 
 .choice-btn {
   border: 1px solid var(--border2);
@@ -827,6 +898,14 @@ body {
             </div>
             <label class="toggle-wrap"><input type="checkbox" id="autoAdvance" checked><span class="toggle-track"></span></label>
           </div>
+          <!-- NEW: Self-test mode -->
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Self-test mode</div>
+              <div class="setting-sub">Hide choices until you tap to reveal</div>
+            </div>
+            <label class="toggle-wrap"><input type="checkbox" id="selfTestMode"><span class="toggle-track"></span></label>
+          </div>
         </div>
       </div>
 
@@ -937,7 +1016,10 @@ body {
         <!-- Prompt side -->
         <div class="prompt-side">
           <div class="prompt-label" id="promptLabel">Which sound matches this symbol?</div>
-          <div class="mode-badge-pill" id="modeBadge">Cycle shuffle</div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center">
+            <div class="mode-badge-pill" id="modeBadge">Cycle shuffle</div>
+            <div class="selftest-mode-badge" id="selftestBadge">✏️ Self-test</div>
+          </div>
 
           <div class="timer-wrap timer-hidden" id="timerWrap">
             <div class="timer-meta"><span>Time left</span><span id="timerText">5.0s</span></div>
@@ -951,7 +1033,16 @@ body {
 
         <!-- Answer side -->
         <div class="answer-side">
-          <div class="choices-grid" id="choicesGrid"></div>
+          <!-- Choices wrapped for overlay support -->
+          <div class="choices-wrap" id="choicesWrap">
+            <div class="choices-grid" id="choicesGrid"></div>
+            <!-- Self-test overlay: click to reveal choices -->
+            <div class="selftest-overlay" id="selftestOverlay" onclick="revealChoices()">
+              <div class="selftest-overlay-icon">👁</div>
+              <div class="selftest-overlay-label">Show answers</div>
+              <div class="selftest-overlay-sub">Click · Space · or press 1–4</div>
+            </div>
+          </div>
           <div>
             <div class="action-bar">
               <button class="btn btn-ghost" id="trainBtn" title="Add to custom group">＋ Train</button>
@@ -959,7 +1050,7 @@ body {
               <button class="btn btn-primary" id="nextBtn" title="Next (N)">Next →</button>
             </div>
             <div class="kb-hint" style="margin-top:8px">
-              <kbd>1</kbd>–<kbd>4</kbd> answer &nbsp;·&nbsp; <kbd>N</kbd> next &nbsp;·&nbsp; <kbd>R</kbd> reveal
+              <kbd>1</kbd>–<kbd>4</kbd> answer &nbsp;·&nbsp; <kbd>N</kbd> next &nbsp;·&nbsp; <kbd>R</kbd> reveal &nbsp;·&nbsp; <kbd>Space</kbd> show
             </div>
           </div>
         </div>
@@ -977,16 +1068,6 @@ body {
         </div>
         <div class="insights-body" id="weakestBody">
           <div class="empty-state">Play a few rounds and your weakest kana will appear here.</div>
-        </div>
-      </div>
-
-      <div class="insights-card open" id="insRowProg">
-        <div class="insights-header" onclick="toggleInsight('insRowProg')">
-          <span class="ih-left"><span class="ih-icon">📊</span>Progress by Row</span>
-          <span class="ih-chevron">▼</span>
-        </div>
-        <div class="insights-body" id="rowProgressBody">
-          <div class="empty-state">Row accuracy appears after a few answers.</div>
         </div>
       </div>
 
@@ -1089,15 +1170,14 @@ const S = {
   missed: new Set(),
   focusMissed: false, studyWeakest: false, hardMode: false,
   autoAdvance: true, timedMode: false, streakSound: false,
+  selfTestMode: false,
   timeLimit: 5, kanaFont: "'Noto Sans JP',sans-serif", fontScale: 1,
   // runtime only
   timerInterval: null, timerEndAt: null, questionShownAt: 0,
   recentKeys: [], shuffleBag: [],
   audioCtx: null,
   recentMistakes: [],
-  // tracked separately to avoid redundant renders
   questionPulls: {}, questionStats: {},
-  // dirty flags
   _statsDirty: false, _weakDirty: false, _pullDirty: false,
 };
 
@@ -1127,6 +1207,7 @@ function loadState() {
     S.autoAdvance   = bool(d.autoAdvance, true);
     S.timedMode     = bool(d.timedMode, false);
     S.streakSound   = bool(d.streakSound, false);
+    S.selfTestMode  = bool(d.selfTestMode, false);
     S.timeLimit     = Number(d.timeLimit) || 5;
     S.kanaFont      = str(d.kanaFont) || "'Noto Sans JP',sans-serif";
     S.fontScale     = Number(d.fontScale) || 1;
@@ -1149,6 +1230,7 @@ function scheduleSave() {
       focusMissed: S.focusMissed, studyWeakest: S.studyWeakest,
       hardMode: S.hardMode, autoAdvance: S.autoAdvance,
       timedMode: S.timedMode, streakSound: S.streakSound,
+      selfTestMode: S.selfTestMode,
       timeLimit: S.timeLimit, kanaFont: S.kanaFont, fontScale: S.fontScale,
       recentMistakes: S.recentMistakes,
       questionPulls: S.questionPulls, questionStats: S.questionStats
@@ -1350,6 +1432,8 @@ const el = {
   acc:          $("acc"),
   kana:         $("kanaDisplay"),
   choices:      $("choicesGrid"),
+  choicesWrap:  $("choicesWrap"),
+  selftestOverlay: $("selftestOverlay"),
   feedback:     $("feedbackMsg"),
   promptLabel:  $("promptLabel"),
   modeBadge:    $("modeBadge"),
@@ -1398,6 +1482,30 @@ function showCorrectOnDisplay(correctChar) {
     el.kana.textContent = correctChar;
   }
   flashKana("wrong");
+}
+
+// ═══════════════════════════════════════════
+//  SELF-TEST MODE
+// ═══════════════════════════════════════════
+function applySelfTestState(revealed) {
+  // choicesWrap gets selftest-active class when mode is on
+  el.choicesWrap.classList.toggle("selftest-active", S.selfTestMode);
+  // choices-revealed toggles the overlay away
+  el.choicesWrap.classList.toggle("choices-revealed", !S.selfTestMode || revealed);
+  // body-level class for badge visibility
+  document.body.classList.toggle("selftest-active-global", S.selfTestMode);
+}
+
+// Called when user clicks overlay or presses Space/1-4 while overlay is showing
+function revealChoices() {
+  if (!S.selfTestMode) return;
+  el.choicesWrap.classList.add("choices-revealed");
+  // Re-enable buttons so they can be clicked
+  el.choices.querySelectorAll(".choice-btn").forEach(b => { b.disabled = false; });
+}
+
+function isChoicesHidden() {
+  return S.selfTestMode && !el.choicesWrap.classList.contains("choices-revealed");
 }
 
 // ═══════════════════════════════════════════
@@ -1661,7 +1769,6 @@ function renderInsights() {
   _insightsTimer = requestAnimationFrame(() => {
     _insightsTimer = null;
     _renderWeakest();
-    _renderRowProgress();
     _renderPullDist();
   });
 }
@@ -1683,19 +1790,6 @@ function _renderWeakest() {
         <span>Shown ${s.shown}</span><span>Wrong ${s.wrong}</span>
         <span>Timeouts ${s.timeouts}</span><span>${accStr}</span><span>${avg}</span>
       </div>
-    </div>`;
-  }).join("");
-}
-
-function _renderRowProgress() {
-  const rows = getRows();
-  const items = Object.entries(rows).map(([k, r]) => ({ k, label: r.label, acc: rowAccuracy(k) })).filter(x => x.acc !== null);
-  if (!items.length) { $("rowProgressBody").innerHTML = `<div class="empty-state">Row accuracy appears after a few answers.</div>`; return; }
-  $("rowProgressBody").innerHTML = items.map(({ label, acc }) => {
-    const cls = acc >= 80 ? "" : acc >= 55 ? "w" : "b";
-    return `<div class="rp-item">
-      <div class="rp-header"><span class="rp-name">${label}</span><span class="rp-pct">${acc}%</span></div>
-      <div class="rp-bar"><div class="rp-fill ${cls}" style="width:${acc}%"></div></div>
     </div>`;
   }).join("");
 }
@@ -1739,6 +1833,9 @@ function nextQuestion() {
   setFeedback("", null);
   el.kana.classList.remove("flash-correct", "flash-wrong");
 
+  // Reset self-test overlay to hidden for the new question
+  applySelfTestState(false);
+
   const pool = getCurrentPool();
   if (!pool.length) { el.kana.textContent = "—"; el.choices.innerHTML = ""; return; }
 
@@ -1766,6 +1863,12 @@ function nextQuestion() {
       ? hardDistractors(ch, wrongPool, 3)
       : shuffle([...wrongPool]).slice(0, 3);
     shuffle([ch, ...wrongs]).forEach((v, i) => addChoiceBtn(v, i, true, ch));
+  }
+
+  // In self-test mode, disable buttons so they can't be accidentally triggered
+  // while the overlay is showing — revealChoices() re-enables them
+  if (S.selfTestMode) {
+    el.choices.querySelectorAll(".choice-btn").forEach(b => { b.disabled = true; });
   }
 
   renderInsights();
@@ -1842,6 +1945,8 @@ function handleTimeUp() {
   addMistake(S.current);
   recordResult(S.current, false, true, S.timeLimit * 1000, S.studyWeakest);
   const s2s = S.mode !== "soundToSymbol";
+  // If choices were hidden, reveal them first so user sees the correct answer
+  if (isChoicesHidden()) revealChoices();
   highlightCorrect(s2s ? ro : ch);
   showCorrectOnDisplay(ch);
   setFeedback(s2s ? ` Time's up — ${ch} = ${ro}` : ` Time's up — ${ro} = ${ch}`, "bad");
@@ -1850,6 +1955,8 @@ function handleTimeUp() {
 
 function handleReveal() {
   if (S.locked || !S.current) return;
+  // If in self-test mode and choices are still hidden, reveal them first
+  if (isChoicesHidden()) { revealChoices(); return; }
   const [ch, ro] = S.current;
   const key = qKey(S.current);
   S.total++; S.streak = 0; S.score = Math.max(0, S.score - 5);
@@ -1917,6 +2024,19 @@ $("hardMode").addEventListener("change", e => {
   nextQuestion(); scheduleSave();
 });
 $("autoAdvance").addEventListener("change", e => { S.autoAdvance = e.target.checked; scheduleSave(); });
+$("selfTestMode").addEventListener("change", e => {
+  S.selfTestMode = e.target.checked;
+  applySelfTestState(false); // re-hide for current question
+  // If turning on, disable buttons immediately; if turning off, re-enable
+  if (!S.selfTestMode) {
+    el.choices.querySelectorAll(".choice-btn:not([class*=correct]):not([class*=wrong])").forEach(b => {
+      if (!S.locked) b.disabled = false;
+    });
+  } else if (!S.locked) {
+    el.choices.querySelectorAll(".choice-btn").forEach(b => { b.disabled = true; });
+  }
+  scheduleSave();
+});
 $("timedMode").addEventListener("change", e => {
   S.timedMode = e.target.checked; updateTimerVisibility();
   S.lastQuestion = null; clearBag(); clearRecent(); nextQuestion(); scheduleSave();
@@ -1940,8 +2060,14 @@ document.addEventListener("keydown", e => {
   if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
   if (e.key.toLowerCase() === "n") { S.lastQuestion = S.current; nextQuestion(); return; }
   if (e.key.toLowerCase() === "r") { handleReveal(); return; }
+  // Space bar reveals choices in self-test mode
+  if (e.key === " " || e.code === "Space") {
+    if (isChoicesHidden()) { e.preventDefault(); revealChoices(); return; }
+  }
   const idx = Number(e.key) - 1;
   if (Number.isInteger(idx) && idx >= 0 && idx < 4) {
+    // If self-test overlay is showing, reveal first then fire the choice
+    if (isChoicesHidden()) { revealChoices(); }
     const btns = [...el.choices.querySelectorAll(".choice-btn")];
     if (btns[idx]) btns[idx].click();
   }
@@ -1971,6 +2097,7 @@ $("hardMode").checked      = S.hardMode;
 $("autoAdvance").checked   = S.autoAdvance;
 $("timedMode").checked     = S.timedMode;
 $("streakSound").checked   = S.streakSound;
+$("selfTestMode").checked  = S.selfTestMode;
 $("timeSelect").value      = String(S.timeLimit);
 
 applyFont();
@@ -1983,63 +2110,45 @@ updateModeUI();
 updateTimerVisibility();
 updateStatsUI();
 renderInsights();
+applySelfTestState(false);
+document.body.classList.toggle("selftest-active-global", S.selfTestMode);
 nextQuestion();
 
 // ── SERVICE WORKER REGISTRATION ──
 if ("serviceWorker" in navigator) {
-  // Build the SW script as a blob so everything stays in one file
   const SW_VERSION = "kana-v1";
   const swCode = `
 const CACHE = "${SW_VERSION}";
 const FONTS = [
   "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=M+PLUS+Rounded+1c:wght@400;700;900&family=Sawarabi+Mincho&family=BIZ+UDGothic:wght@400;700&display=swap"
 ];
-
-// On install: cache the page itself and font stylesheet
 self.addEventListener("install", e => {
-  e.waitUntil(
-    caches.open(CACHE).then(cache =>
-      cache.addAll(FONTS).catch(() => {})
-    )
-  );
+  e.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FONTS).catch(() => {})));
   self.skipWaiting();
 });
-
-// On activate: drop old caches
 self.addEventListener("activate", e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
-  );
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))));
   self.clients.claim();
 });
-
-// Fetch: cache-first for font requests, network-first for everything else
 self.addEventListener("fetch", e => {
   const url = e.request.url;
   if (url.includes("fonts.googleapis.com") || url.includes("fonts.gstatic.com")) {
-    e.respondWith(
-      caches.match(e.request).then(cached => {
-        if (cached) return cached;
-        return fetch(e.request).then(res => {
-          const clone = res.clone();
-          caches.open(CACHE).then(cache => cache.put(e.request, clone));
-          return res;
-        }).catch(() => cached);
-      })
-    );
-    return;
-  }
-  // For the HTML file itself: network first, fall back to cache
-  if (e.request.mode === "navigate") {
-    e.respondWith(
-      fetch(e.request).then(res => {
+    e.respondWith(caches.match(e.request).then(cached => {
+      if (cached) return cached;
+      return fetch(e.request).then(res => {
         const clone = res.clone();
         caches.open(CACHE).then(cache => cache.put(e.request, clone));
         return res;
-      }).catch(() => caches.match(e.request))
-    );
+      }).catch(() => cached);
+    }));
+    return;
+  }
+  if (e.request.mode === "navigate") {
+    e.respondWith(fetch(e.request).then(res => {
+      const clone = res.clone();
+      caches.open(CACHE).then(cache => cache.put(e.request, clone));
+      return res;
+    }).catch(() => caches.match(e.request)));
     return;
   }
 });
