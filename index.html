@@ -962,7 +962,6 @@ body {
   <div class="mode-tabs">
     <button class="mode-tab active" id="tabS2S">Symbol → Sound</button>
     <button class="mode-tab" id="tabSd2Sy">Sound → Symbol</button>
-    <button class="mode-tab" id="tabConf">Confusables</button>
     <button class="mode-tab" id="tabWrite">✍ Write</button>
   </div>
 
@@ -1012,13 +1011,6 @@ body {
               <div class="setting-sub">Weighted toward your weak spots</div>
             </div>
             <label class="toggle-wrap"><input type="checkbox" id="studyWeakest"><span class="toggle-track"></span></label>
-          </div>
-          <div class="setting-row">
-            <div>
-              <div class="setting-label">Hard mode</div>
-              <div class="setting-sub">Similar-looking distractors</div>
-            </div>
-            <label class="toggle-wrap"><input type="checkbox" id="hardMode"><span class="toggle-track"></span></label>
           </div>
           <div class="setting-row">
             <div>
@@ -1345,40 +1337,6 @@ const K_ROWS = {
 };
 const SCRIPTS = { hiragana: H_ROWS, katakana: K_ROWS };
 
-const CONFUSABLES = {
-  hiragana: [["さ","sa"],["き","ki"],["ち","chi"],["て","te"],["に","ni"],
-    ["ぬ","nu"],["め","me"],["ね","ne"],["は","ha"],["ほ","ho"],
-    ["わ","wa"],["れ","re"],["る","ru"],["ろ","ro"],["む","mu"],
-    ["う","u"],["つ","tsu"],["り","ri"],["い","i"],["ら","ra"],
-    ["こ","ko"],["そ","so"],["し","shi"],["の","no"]],
-  katakana: [["シ","shi"],["ツ","tsu"],["ソ","so"],["ン","n"],
-    ["ア","a"],["マ","ma"],["ナ","na"],["ク","ku"],["ロ","ro"],["コ","ko"],
-    ["ニ","ni"],["チ","chi"],["テ","te"],["ケ","ke"],["ウ","u"],
-    ["ラ","ra"],["レ","re"],["フ","fu"],["ワ","wa"]]
-};
-
-const CONFUSABLE_MAP = {
-  hiragana: {
-    "さ":["き","ち","た","す"],"き":["さ","ち","に","け"],"ち":["さ","き","て","に"],
-    "ぬ":["め","ね","る","の"],"め":["ぬ","ね","る","の"],"ね":["ぬ","め","れ","わ"],
-    "は":["ほ","わ","け","へ"],"ほ":["は","わ","け","ほ"],"わ":["ね","れ","は","ら"],
-    "れ":["わ","ね","は","ら"],"る":["ぬ","め","ろ","ら"],"ろ":["る","ぬ","め","ら"],
-    "り":["い","し","ひ","に"],"い":["り","し","ひ","に"],"う":["つ","っ","ぅ","お"],
-    "つ":["う","っ","し","づ"],"し":["り","い","く","つ"],"の":["ぬ","め","な","も"],
-    "こ":["ご","と","に","そ"],"そ":["こ","ご","ぞ","さ"],"む":["ぬ","め","も","ふ"],
-    "ら":["る","ろ","れ","ら"],"に":["き","ち","け","こ"],"て":["ち","さ","た","で"]
-  },
-  katakana: {
-    "シ":["ツ","ソ","ン","チ"],"ツ":["シ","ソ","ン","ス"],"ソ":["シ","ツ","ン","ノ"],
-    "ン":["シ","ツ","ソ","ウ"],"ア":["マ","ナ","ヤ","ア"],"マ":["ア","ナ","ム","マ"],
-    "ナ":["ア","マ","メ","ナ"],"ク":["フ","ワ","ヲ","ク"],"フ":["ク","ワ","ヲ","フ"],
-    "ロ":["コ","ニ","ロ","ヨ"],"コ":["ロ","ニ","コ","ヨ"],"ニ":["ロ","コ","ユ","ニ"],
-    "チ":["テ","ケ","シ","チ"],"テ":["チ","ケ","ナ","テ"],"ケ":["テ","チ","カ","ケ"],
-    "ウ":["ン","ス","エ","ウ"],"ラ":["レ","ワ","ヲ","ラ"],"レ":["ラ","ワ","ヲ","レ"],
-    "ワ":["ラ","レ","ヲ","ワ"]
-  }
-};
-
 const DEFAULT_ROWS        = ["vowels"];
 const WEAKEST_LIMIT       = 5;
 const RECENT_LIMIT        = 8;
@@ -1394,7 +1352,7 @@ const S = {
   current: null, lastQuestion: null, locked: false,
   score: 0, streak: 0, correct: 0, total: 0,
   missed: new Set(),
-  focusMissed: false, studyWeakest: false, hardMode: false,
+  focusMissed: false, studyWeakest: false,
   autoAdvance: true, timedMode: false, streakSound: false,
   selfTestMode: false,
   autoSpeak: true, speakVolume: 1, showMistakes: false,
@@ -1434,7 +1392,6 @@ function loadState() {
     S.missed        = new Set(Array.isArray(d.missed) ? d.missed : []);
     S.focusMissed   = bool(d.focusMissed, false);
     S.studyWeakest  = bool(d.studyWeakest, false);
-    S.hardMode      = bool(d.hardMode, false);
     S.autoAdvance   = bool(d.autoAdvance, true);
     S.timedMode     = bool(d.timedMode, false);
     S.streakSound   = bool(d.streakSound, false);
@@ -1465,7 +1422,7 @@ function scheduleSave() {
       customGroups: S.customGroups, score: S.score, streak: S.streak,
       correct: S.correct, total: S.total, missed: [...S.missed],
       focusMissed: S.focusMissed, studyWeakest: S.studyWeakest,
-      hardMode: S.hardMode, autoAdvance: S.autoAdvance,
+      hardMode: false, autoAdvance: S.autoAdvance,
       timedMode: S.timedMode, streakSound: S.streakSound,
       selfTestMode: S.selfTestMode,
       autoSpeak: S.autoSpeak, speakVolume: S.speakVolume,
@@ -1512,18 +1469,13 @@ function getSelectedPool() {
   return [...map.values()];
 }
 
-function getConfusablesPool() {
-  const seen = new Set();
-  return CONFUSABLES[S.script].filter(p => { if (seen.has(p[0])) return false; seen.add(p[0]); return true; });
-}
-
 function getCurrentPool() {
-  let pool = S.mode === "confusables" ? getConfusablesPool() : getSelectedPool();
-  if (S.focusMissed && S.mode !== "confusables") {
+  let pool = getSelectedPool();
+  if (S.focusMissed) {
     const m = pool.filter(p => S.missed.has(qKey(p)));
     if (m.length) pool = m;
   }
-  if (S.studyWeakest && S.mode !== "confusables") {
+  if (S.studyWeakest) {
     const ranked = rankWeakest(pool);
     const src = ranked.filter(x => x.s.shown > 0 || x.s.wrong > 0).length >= 2
       ? ranked.filter(x => x.s.shown > 0 || x.s.wrong > 0)
@@ -1636,8 +1588,8 @@ function pickPair(pool) {
     return picked;
   };
 
-  if (S.mode === "confusables" || !S.studyWeakest) {
-    if (S.randomMode === "cycle" && S.mode !== "confusables") return nextShuffled(pool);
+  if (!S.studyWeakest) {
+    if (S.randomMode === "cycle") return nextShuffled(pool);
     const pulls = pool.map(pullCount), minPull = Math.min(...pulls);
     const cands = pool.map(p => ({ p, w: Math.max(0.01, fairnessScore(p, minPull) * recentPenalty(p)) }));
     return avoidLast(cands, chooseWeighted(cands));
@@ -1646,20 +1598,6 @@ function pickPair(pool) {
   const maxMs  = Math.max(...pool.map(p => qStats(p).avgMs || 0), 1);
   const cands  = pool.map(p => ({ p, w: Math.max(0.01, weaknessScore(p, minPull, maxMs)) }));
   return avoidLast(cands, chooseWeighted(cands));
-}
-
-// ═══════════════════════════════════════════
-//  HARD MODE DISTRACTORS
-// ═══════════════════════════════════════════
-function hardDistractors(correctChar, pool, count) {
-  const cm = CONFUSABLE_MAP[S.script];
-  const conf = (cm[correctChar] || []).filter(c => c !== correctChar && pool.includes(c));
-  const r = shuffle([...conf]).slice(0, count);
-  if (r.length < count) {
-    shuffle(pool.filter(c => c !== correctChar && !r.includes(c)))
-      .slice(0, count - r.length).forEach(c => r.push(c));
-  }
-  return r.slice(0, count);
 }
 
 // ═══════════════════════════════════════════
@@ -1693,7 +1631,6 @@ const el = {
   newGroupName: $("newGroupName"),
   tabS2S:       $("tabS2S"),
   tabSd2Sy:     $("tabSd2Sy"),
-  tabConf:      $("tabConf"),
 };
 
 function setFeedback(text, kind) {
@@ -1768,24 +1705,20 @@ function updateStatsUI() {
 function updateModeUI() {
   el.tabS2S.classList.toggle("active",   S.mode === "symbolToSound");
   el.tabSd2Sy.classList.toggle("active", S.mode === "soundToSymbol");
-  el.tabConf.classList.toggle("active",  S.mode === "confusables");
   $("tabWrite").classList.toggle("active", S.mode === "write");
 
   el.promptLabel.textContent =
     S.mode === "soundToSymbol" ? "Which symbol matches this sound?" :
-    S.mode === "confusables"   ? "Which sound matches this symbol?" :
     S.mode === "write"         ? "Draw this sound" :
                                  "Which sound matches this symbol?";
 
   const modeLabel =
-    S.mode === "confusables"  ? "Confusables" :
     S.mode === "write"        ? "Write Mode" :
     S.studyWeakest            ? "Study weakest" :
     S.randomMode === "cycle"  ? "Cycle shuffle" : "Balanced random";
   el.modeBadge.textContent = modeLabel;
 
   el.hintText.textContent =
-    S.mode === "confusables" ? "Confusables: commonly mixed-up kana. Concentrate!" :
     S.mode === "write"       ? "Draw the kana, then reveal and self-grade." :
     S.studyWeakest           ? "Weighted toward your weakest kana." :
     S.randomMode === "cycle" ? "Every kana appears once per cycle before repeating." :
@@ -2021,7 +1954,7 @@ function renderInsights() {
 }
 
 function _renderWeakest() {
-  const pool = S.mode === "confusables" ? getConfusablesPool() : getSelectedPool();
+  const pool = getSelectedPool();
   if (!pool.length) { el.weakestBody.innerHTML = `<div class="empty-state">No kana selected.</div>`; return; }
   const ranked = rankWeakest(pool).filter(x => x.s.shown > 0 || x.s.wrong > 0).slice(0, WEAKEST_LIMIT);
   if (!ranked.length) { el.weakestBody.innerHTML = `<div class="empty-state">Play a few rounds and weakest kana appear here.</div>`; return; }
@@ -2042,7 +1975,7 @@ function _renderWeakest() {
 }
 
 function _renderPullDist() {
-  const pool = S.mode === "confusables" ? getConfusablesPool() : getSelectedPool();
+  const pool = getSelectedPool();
   if (!pool.length) { el.pullBody.innerHTML = `<div class="pull-body-inner"><div class="empty-state">No kana selected.</div></div>`; return; }
   const data = pool.map(p => ({ ch: p[0], ro: p[1], n: pullCount(p) }));
   const total = data.reduce((s, x) => s + x.n, 0);
@@ -2114,9 +2047,7 @@ function nextQuestion() {
     } else {
       const allCh     = [...new Set(pool.map(p => p[0]))];
       const wrongPool = allCh.filter(c => c !== ch);
-      const wrongs    = S.hardMode && wrongPool.length >= 3
-        ? hardDistractors(ch, wrongPool, 3)
-        : shuffle([...wrongPool]).slice(0, 3);
+      const wrongs    = shuffle([...wrongPool]).slice(0, 3);
       shuffle([ch, ...wrongs]).forEach((v, i) => addChoiceBtn(v, i, true, ch));
     }
 
@@ -2469,7 +2400,6 @@ function writeStartQuestion() {
 // ═══════════════════════════════════════════
 el.tabS2S.addEventListener("click",   () => setMode("symbolToSound"));
 el.tabSd2Sy.addEventListener("click", () => setMode("soundToSymbol"));
-el.tabConf.addEventListener("click",  () => setMode("confusables"));
 $("tabWrite").addEventListener("click", () => setMode("write"));
 
 // Write canvas events
@@ -2509,10 +2439,6 @@ $("focusMissed").addEventListener("change", e => {
 $("studyWeakest").addEventListener("change", e => {
   S.studyWeakest = e.target.checked; S.lastQuestion = null; clearBag(); clearRecent();
   updateModeUI(); nextQuestion(); scheduleSave();
-});
-$("hardMode").addEventListener("change", e => {
-  S.hardMode = e.target.checked; S.lastQuestion = null; clearBag(); clearRecent();
-  nextQuestion(); scheduleSave();
 });
 $("autoAdvance").addEventListener("change", e => { S.autoAdvance = e.target.checked; scheduleSave(); });
 $("selfTestMode").addEventListener("change", e => {
@@ -2586,7 +2512,7 @@ document.addEventListener("keydown", e => {
 // ═══════════════════════════════════════════
 loadState();
 if (!SCRIPTS[S.script])                                     S.script     = "hiragana";
-if (!["symbolToSound","soundToSymbol","confusables","write"].includes(S.mode)) S.mode = "symbolToSound";
+if (!["symbolToSound","soundToSymbol","write"].includes(S.mode)) S.mode = "symbolToSound";
 if (!["cycle","balanced"].includes(S.randomMode))           S.randomMode = "cycle";
 
 // Validate rows
@@ -2601,7 +2527,6 @@ $("fontSelect").value      = S.kanaFont;
 $("fontSizeSelect").value  = String(S.fontScale);
 $("focusMissed").checked   = S.focusMissed;
 $("studyWeakest").checked  = S.studyWeakest;
-$("hardMode").checked      = S.hardMode;
 $("autoAdvance").checked   = S.autoAdvance;
 $("timedMode").checked     = S.timedMode;
 $("streakSound").checked   = S.streakSound;
