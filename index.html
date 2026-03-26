@@ -56,12 +56,14 @@ body {
   display: grid;
   place-items: start center;
   padding: 16px;
+  overflow-x: hidden;
 }
 
 .wrap {
   width: min(1100px, 100%);
   display: grid;
   gap: 12px;
+  overflow-x: hidden;
 }
 
 /* ── HEADER ── */
@@ -119,10 +121,13 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 4px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
+.mode-tabs::-webkit-scrollbar { display: none; }
 
 .mode-tab {
-  flex: 1;
+  flex: 1 0 auto;
   border: none;
   background: transparent;
   color: var(--muted);
@@ -154,14 +159,78 @@ body {
 
 @media (max-width: 1000px) {
   .main-layout { grid-template-columns: 240px 1fr; }
-  .insights-col { display: none; }
+  .insights-col { display: none !important; }
 }
 
 @media (max-width: 680px) {
   .main-layout { grid-template-columns: 1fr; }
-  .settings-col { order: 2; }
+  .settings-col { display: none !important; }
   .game-col { order: 1; }
+  .insights-col { display: none !important; }
 }
+
+/* ── MOBILE BOTTOM SHEET ── */
+.sheet-gear {
+  display: none;
+  width: 38px; height: 38px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 10px; color: var(--muted); font-size: 18px;
+  cursor: pointer; align-items: center; justify-content: center;
+  transition: all .15s; flex-shrink: 0;
+}
+.sheet-gear:hover { border-color: var(--accent); color: var(--text); }
+@media (max-width: 680px) { .sheet-gear { display: flex; } }
+
+.sheet-overlay {
+  display: none; position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,.55); opacity: 0; transition: opacity .25s;
+}
+.sheet-overlay.on { display: block; opacity: 1; }
+
+.sheet-drawer {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 901;
+  background: var(--bg); border-top: 3px solid var(--accent);
+  border-radius: 16px 16px 0 0;
+  max-height: 85dvh; overflow-y: auto;
+  transform: translateY(100%); transition: transform .3s cubic-bezier(.4,0,.2,1);
+  padding: 14px 16px 32px;
+}
+.sheet-drawer.on { transform: translateY(0); }
+.sheet-handle {
+  width: 36px; height: 4px; background: rgba(255,255,255,.2);
+  border-radius: 2px; margin: 0 auto 14px;
+}
+.sheet-title {
+  font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 14px;
+}
+.sheet-drawer .settings-section { margin-bottom: 8px; }
+.sheet-drawer .settings-section,
+.sheet-drawer .settings-section * { visibility: visible; }
+#sheetSettingsSlot { display: grid; gap: 8px; }
+#sheetInsightsSlot { display: grid; gap: 8px; }
+#sheetInsightsSlot .insights-col { display: grid !important; gap: 8px; }
+
+/* insights button for mobile */
+.sheet-insights-btn {
+  display: none;
+  width: 38px; height: 38px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 10px; color: var(--muted); font-size: 18px;
+  cursor: pointer; align-items: center; justify-content: center;
+  transition: all .15s; flex-shrink: 0;
+}
+.sheet-insights-btn:hover { border-color: var(--accent); color: var(--text); }
+@media (max-width: 1000px) { .sheet-insights-btn { display: flex; } }
+
+.insights-sheet-drawer {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 901;
+  background: var(--bg); border-top: 3px solid var(--accent);
+  border-radius: 16px 16px 0 0;
+  max-height: 85dvh; overflow-y: auto;
+  transform: translateY(100%); transition: transform .3s cubic-bezier(.4,0,.2,1);
+  padding: 14px 16px 32px;
+}
+.insights-sheet-drawer.on { transform: translateY(0); }
 
 /* ── CARD ── */
 .card {
@@ -809,6 +878,63 @@ body {
   .action-bar { grid-template-columns: auto auto 1fr; gap: 6px; }
   .rows-grid { grid-template-columns: 1fr; }
 }
+
+/* ── SOUND CONTROLS ── */
+.sound-controls { display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.sound-chip {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--border2); background: transparent;
+  color: var(--muted); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .15s; user-select: none;
+}
+.sound-chip:hover { border-color: rgba(108,159,255,.5); color: var(--text); }
+.sound-chip.on { background: rgba(108,159,255,.15); border-color: rgba(108,159,255,.4); color: var(--accent); }
+.sound-chip svg { width: 16px; height: 16px; fill: currentColor; }
+
+/* ── WRITE MODE ── */
+.write-card {
+  display: none;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 16px; text-align: center;
+}
+.write-card.active { display: block; }
+.write-prompt-label { font-size: 10px; letter-spacing: .4em; text-transform: uppercase; color: var(--muted); }
+.write-prompt-text { font-size: 48px; font-weight: 900; color: var(--text); line-height: 1.1; margin: 4px 0 8px; }
+.write-canvas-wrap {
+  position: relative; width: 100%; max-width: 340px; margin: 0 auto;
+  aspect-ratio: 1; border-radius: 12px; overflow: hidden;
+  background: #1a1f30; border: 1.5px solid rgba(108,159,255,.2);
+}
+.write-canvas-wrap canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.write-reveal-overlay {
+  position: absolute; inset: 0; background: rgba(26,31,48,.92);
+  display: none; align-items: center; justify-content: center; flex-direction: column; gap: 4px;
+}
+.write-reveal-overlay.on { display: flex; }
+.write-reveal-char { font-size: 100px; font-weight: 900; color: var(--text); font-family: var(--kana-font); line-height: 1; }
+.write-reveal-rom { font-size: 16px; letter-spacing: .3em; color: var(--accent); }
+.write-toolbar { display: flex; gap: 8px; justify-content: center; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+.write-toolbar .btn { font-size: 12px; padding: 7px 14px; }
+.brush-group {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface2); border-radius: 8px; padding: 5px 10px;
+}
+.brush-group label { font-size: 10px; color: var(--muted); }
+.brush-group input[type=range] { width: 70px; accent-color: var(--accent); }
+.write-grade { display: none; gap: 10px; justify-content: center; margin-top: 10px; }
+.write-grade.on { display: flex; }
+.write-grade .btn-wrong { background: rgba(255,107,107,.07); border: 2px solid var(--bad); color: var(--bad); }
+.write-grade .btn-wrong:hover { background: rgba(255,107,107,.18); }
+.write-grade .btn-right { background: rgba(29,209,161,.07); border: 2px solid var(--good); color: var(--good); }
+.write-grade .btn-right:hover { background: rgba(29,209,161,.18); }
+.write-feedback { margin-top: 8px; min-height: 22px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.write-next { display: none; margin-top: 8px; }
+.write-next.on { display: block; }
+
+/* mistakes bar toggle */
+.mistakes-bar.hidden { display: none; }
 </style>
 </head>
 <body>
@@ -827,6 +953,8 @@ body {
       <div class="stat-pill"><span class="icon">🔥</span> Streak <b id="streak">0</b></div>
       <div class="stat-pill"><span class="icon">🎯</span> Accuracy <b id="acc">0%</b></div>
       <button class="btn-reset" id="resetBtn">Reset</button>
+      <button class="sheet-gear" id="openSettingsSheet" title="Settings">⚙</button>
+      <button class="sheet-insights-btn" id="openInsightsSheet" title="Insights">📊</button>
     </div>
   </header>
 
@@ -835,6 +963,7 @@ body {
     <button class="mode-tab active" id="tabS2S">Symbol → Sound</button>
     <button class="mode-tab" id="tabSd2Sy">Sound → Symbol</button>
     <button class="mode-tab" id="tabConf">Confusables</button>
+    <button class="mode-tab" id="tabWrite">✍ Write</button>
   </div>
 
   <!-- RECENT MISTAKES -->
@@ -964,6 +1093,51 @@ body {
             </div>
             <label class="toggle-wrap"><input type="checkbox" id="streakSound"><span class="toggle-track"></span></label>
           </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Auto-speak sound</div>
+              <div class="setting-sub">Read each kana aloud</div>
+            </div>
+            <label class="toggle-wrap"><input type="checkbox" id="autoSpeakToggle" checked><span class="toggle-track"></span></label>
+          </div>
+          <div class="setting-row" id="volumeRow">
+            <div><div class="setting-label">Voice volume</div></div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span id="volumeLabel" style="font-size:12px;color:var(--muted);width:36px;text-align:right">100%</span>
+              <input type="range" id="volumeSlider" min="10" max="100" value="100" style="width:90px;accent-color:var(--accent)">
+            </div>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Show recent mistakes</div>
+              <div class="setting-sub">Display above game card</div>
+            </div>
+            <label class="toggle-wrap"><input type="checkbox" id="showMistakesToggle"><span class="toggle-track"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Write Mode -->
+      <div class="settings-section" id="secWrite">
+        <div class="settings-section-header" onclick="toggleSection('secWrite')">
+          <span><span class="section-icon">✍</span>Write Mode</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="settings-body">
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Guide overlay</div>
+              <div class="setting-sub">Ghost of the character to trace</div>
+            </div>
+            <label class="toggle-wrap"><input type="checkbox" id="writeGuideToggle"><span class="toggle-track"></span></label>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Grid lines</div>
+              <div class="setting-sub">Cross &amp; diagonal reference lines</div>
+            </div>
+            <label class="toggle-wrap"><input type="checkbox" id="writeGridToggle" checked><span class="toggle-track"></span></label>
+          </div>
         </div>
       </div>
 
@@ -1027,6 +1201,10 @@ body {
           </div>
 
           <div class="kana-display" id="kanaDisplay">あ</div>
+          <div class="sound-controls">
+            <span class="sound-chip" id="playBtn" onclick="speakCurrent()">🔊 Play</span>
+            <span class="sound-chip" id="autoSpeakChip" onclick="toggleAutoSpeak()">🔊 Auto: On</span>
+          </div>
           <div class="hint-text" id="hintText">Tip: guess fast, then learn from feedback.</div>
           <div class="feedback-msg" id="feedbackMsg"></div>
         </div>
@@ -1053,6 +1231,40 @@ body {
               <kbd>1</kbd>–<kbd>4</kbd> answer &nbsp;·&nbsp; <kbd>N</kbd> next &nbsp;·&nbsp; <kbd>R</kbd> reveal &nbsp;·&nbsp; <kbd>Space</kbd> show
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- WRITE MODE CARD -->
+      <div class="write-card" id="writeCard">
+        <div class="write-prompt-label">DRAW THIS SOUND</div>
+        <div class="write-prompt-text" id="writePrompt">—</div>
+        <div class="sound-controls" style="margin-bottom:10px">
+          <span class="sound-chip" onclick="speakCurrent()">🔊 Play</span>
+          <span class="sound-chip" id="autoSpeakChipWrite" onclick="toggleAutoSpeak()">🔊 Auto: On</span>
+        </div>
+        <div class="write-canvas-wrap" id="writeCanvasWrap">
+          <canvas id="writeCanvas"></canvas>
+          <div class="write-reveal-overlay" id="writeRevealOverlay">
+            <div class="write-reveal-char" id="writeRevealChar"></div>
+            <div class="write-reveal-rom" id="writeRevealRom"></div>
+          </div>
+        </div>
+        <div class="write-toolbar" id="writeToolbar">
+          <button class="btn btn-ghost" id="writeUndo">↩ Undo</button>
+          <button class="btn btn-ghost" id="writeClear">✕ Clear</button>
+          <div class="brush-group">
+            <label>Brush</label>
+            <input type="range" id="writeBrush" min="4" max="28" value="12">
+          </div>
+          <button class="btn btn-primary" id="writeRevealBtn" style="width:auto">Reveal ↓</button>
+        </div>
+        <div class="write-grade" id="writeGrade">
+          <button class="btn btn-wrong" id="writeWrong">✕ Wrong</button>
+          <button class="btn btn-right" id="writeRight">✓ Correct</button>
+        </div>
+        <div class="write-feedback" id="writeFeedback"></div>
+        <div class="write-next" id="writeNextWrap">
+          <button class="btn btn-primary" id="writeNextBtn">Next →</button>
         </div>
       </div>
 
@@ -1085,6 +1297,20 @@ body {
 
     </aside>
   </div>
+</div>
+
+<!-- MOBILE SHEETS -->
+<div class="sheet-overlay" id="sheetOverlay"></div>
+<div class="sheet-drawer" id="settingsSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Settings</div>
+  <div id="sheetSettingsSlot"></div>
+</div>
+
+<div class="insights-sheet-drawer" id="insightsSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Insights</div>
+  <div id="sheetInsightsSlot"></div>
 </div>
 
 <script>
@@ -1171,6 +1397,11 @@ const S = {
   focusMissed: false, studyWeakest: false, hardMode: false,
   autoAdvance: true, timedMode: false, streakSound: false,
   selfTestMode: false,
+  autoSpeak: true, speakVolume: 1, showMistakes: false,
+  collapsedSections: [],
+  writeGuide: false, writeGrid: true,
+  writeRevealed: false, writeGraded: false,
+  writeStrokes: [], writeCurrentStroke: null,
   timeLimit: 5, kanaFont: "'Noto Sans JP',sans-serif", fontScale: 1,
   // runtime only
   timerInterval: null, timerEndAt: null, questionShownAt: 0,
@@ -1208,6 +1439,12 @@ function loadState() {
     S.timedMode     = bool(d.timedMode, false);
     S.streakSound   = bool(d.streakSound, false);
     S.selfTestMode  = bool(d.selfTestMode, false);
+    S.autoSpeak     = bool(d.autoSpeak, true);
+    S.speakVolume   = Number(d.speakVolume) || 1;
+    S.showMistakes  = bool(d.showMistakes, false);
+    S.collapsedSections = Array.isArray(d.collapsedSections) ? d.collapsedSections : [];
+    S.writeGuide    = bool(d.writeGuide, false);
+    S.writeGrid     = bool(d.writeGrid, true);
     S.timeLimit     = Number(d.timeLimit) || 5;
     S.kanaFont      = str(d.kanaFont) || "'Noto Sans JP',sans-serif";
     S.fontScale     = Number(d.fontScale) || 1;
@@ -1231,6 +1468,9 @@ function scheduleSave() {
       hardMode: S.hardMode, autoAdvance: S.autoAdvance,
       timedMode: S.timedMode, streakSound: S.streakSound,
       selfTestMode: S.selfTestMode,
+      autoSpeak: S.autoSpeak, speakVolume: S.speakVolume,
+      showMistakes: S.showMistakes, collapsedSections: S.collapsedSections,
+      writeGuide: S.writeGuide, writeGrid: S.writeGrid,
       timeLimit: S.timeLimit, kanaFont: S.kanaFont, fontScale: S.fontScale,
       recentMistakes: S.recentMistakes,
       questionPulls: S.questionPulls, questionStats: S.questionStats
@@ -1529,20 +1769,24 @@ function updateModeUI() {
   el.tabS2S.classList.toggle("active",   S.mode === "symbolToSound");
   el.tabSd2Sy.classList.toggle("active", S.mode === "soundToSymbol");
   el.tabConf.classList.toggle("active",  S.mode === "confusables");
+  $("tabWrite").classList.toggle("active", S.mode === "write");
 
   el.promptLabel.textContent =
     S.mode === "soundToSymbol" ? "Which symbol matches this sound?" :
     S.mode === "confusables"   ? "Which sound matches this symbol?" :
+    S.mode === "write"         ? "Draw this sound" :
                                  "Which sound matches this symbol?";
 
   const modeLabel =
     S.mode === "confusables"  ? "Confusables" :
+    S.mode === "write"        ? "Write Mode" :
     S.studyWeakest            ? "Study weakest" :
     S.randomMode === "cycle"  ? "Cycle shuffle" : "Balanced random";
   el.modeBadge.textContent = modeLabel;
 
   el.hintText.textContent =
     S.mode === "confusables" ? "Confusables: commonly mixed-up kana. Concentrate!" :
+    S.mode === "write"       ? "Draw the kana, then reveal and self-grade." :
     S.studyWeakest           ? "Weighted toward your weakest kana." :
     S.randomMode === "cycle" ? "Every kana appears once per cycle before repeating." :
                                "Balanced: controlled randomness, repeat protection.";
@@ -1665,6 +1909,7 @@ function renderRowSelector() {
         S.selectedRows = S.selectedRows.filter(r => r !== key);
         if (!S.selectedRows.length && !S.selectedGroups.length) S.selectedRows = [...DEFAULT_ROWS];
       }
+      S.questionPulls = {};
       S.lastQuestion = null; clearBag(); clearRecent();
       renderRowSelector(); renderCharList(); renderInsights();
       nextQuestion(); scheduleSave();
@@ -1726,6 +1971,7 @@ function renderGroupList() {
         S.selectedGroups = S.selectedGroups.filter(g => g !== name);
         if (!S.selectedRows.length && !S.selectedGroups.length) { S.selectedRows = [...DEFAULT_ROWS]; renderRowSelector(); }
       }
+      S.questionPulls = {};
       S.lastQuestion = null; clearBag(); clearRecent();
       renderGroupList(); renderCharList(); renderInsights(); nextQuestion(); scheduleSave();
     });
@@ -1733,6 +1979,7 @@ function renderGroupList() {
       delete S.customGroups[name];
       S.selectedGroups = S.selectedGroups.filter(g => g !== name);
       if (!S.selectedRows.length && !S.selectedGroups.length) { S.selectedRows = [...DEFAULT_ROWS]; renderRowSelector(); }
+      S.questionPulls = {};
       renderGroupSelect(); renderGroupList(); renderCharList(); renderInsights(); scheduleSave(); nextQuestion();
     });
     el.groupList.appendChild(card);
@@ -1818,7 +2065,12 @@ function _renderPullDist() {
 //  SETTINGS SECTION TOGGLE
 // ═══════════════════════════════════════════
 function toggleSection(id) {
-  document.getElementById(id).classList.toggle("open");
+  const el = document.getElementById(id);
+  el.classList.toggle("open");
+  const idx = S.collapsedSections.indexOf(id);
+  if (el.classList.contains("open")) { if (idx !== -1) S.collapsedSections.splice(idx, 1); }
+  else { if (idx === -1) S.collapsedSections.push(id); }
+  scheduleSave();
 }
 function toggleInsight(id) {
   document.getElementById(id).classList.toggle("open");
@@ -1846,33 +2098,38 @@ function nextQuestion() {
   recordPull(pair);
 
   const [ch, ro] = pair;
-  const s2s = S.mode !== "soundToSymbol";
 
-  el.kana.textContent = s2s ? ch : ro;
-  el.choices.innerHTML = "";
-
-  if (s2s) {
-    const allRo    = [...new Set(pool.map(p => p[1]))];
-    const wrongPool = shuffle(allRo.filter(r => r !== ro));
-    const wrongs    = wrongPool.slice(0, Math.min(3, wrongPool.length));
-    shuffle([ro, ...wrongs]).forEach((v, i) => addChoiceBtn(v, i, false, ro));
+  if (S.mode === "write") {
+    writeStartQuestion();
   } else {
-    const allCh     = [...new Set(pool.map(p => p[0]))];
-    const wrongPool = allCh.filter(c => c !== ch);
-    const wrongs    = S.hardMode && wrongPool.length >= 3
-      ? hardDistractors(ch, wrongPool, 3)
-      : shuffle([...wrongPool]).slice(0, 3);
-    shuffle([ch, ...wrongs]).forEach((v, i) => addChoiceBtn(v, i, true, ch));
-  }
+    const s2s = S.mode !== "soundToSymbol";
+    el.kana.textContent = s2s ? ch : ro;
+    el.choices.innerHTML = "";
 
-  // In self-test mode, disable buttons so they can't be accidentally triggered
-  // while the overlay is showing — revealChoices() re-enables them
-  if (S.selfTestMode) {
-    el.choices.querySelectorAll(".choice-btn").forEach(b => { b.disabled = true; });
+    if (s2s) {
+      const allRo    = [...new Set(pool.map(p => p[1]))];
+      const wrongPool = shuffle(allRo.filter(r => r !== ro));
+      const wrongs    = wrongPool.slice(0, Math.min(3, wrongPool.length));
+      shuffle([ro, ...wrongs]).forEach((v, i) => addChoiceBtn(v, i, false, ro));
+    } else {
+      const allCh     = [...new Set(pool.map(p => p[0]))];
+      const wrongPool = allCh.filter(c => c !== ch);
+      const wrongs    = S.hardMode && wrongPool.length >= 3
+        ? hardDistractors(ch, wrongPool, 3)
+        : shuffle([...wrongPool]).slice(0, 3);
+      shuffle([ch, ...wrongs]).forEach((v, i) => addChoiceBtn(v, i, true, ch));
+    }
+
+    if (S.selfTestMode) {
+      el.choices.querySelectorAll(".choice-btn").forEach(b => { b.disabled = true; });
+    }
+
+    startTimer();
   }
 
   renderInsights();
-  startTimer();
+  // Auto-speak
+  if (S.autoSpeak) setTimeout(speakCurrent, 150);
 }
 
 function addChoiceBtn(value, idx, isKana, correctValue) {
@@ -1985,7 +2242,7 @@ function resetStats() {
 function setMode(m) {
   S.mode = m; S.missed = new Set(); S.lastQuestion = null;
   clearBag(); clearRecent();
-  updateModeUI(); renderInsights(); nextQuestion(); scheduleSave();
+  updateModeUI(); updateWriteMode(); renderInsights(); nextQuestion(); scheduleSave();
 }
 
 function applyFont() {
@@ -1994,15 +2251,249 @@ function applyFont() {
 }
 
 // ═══════════════════════════════════════════
+//  TTS (Text-to-Speech)
+// ═══════════════════════════════════════════
+const ROM_TO_KANA = {
+  a:"あ",i:"い",u:"う",e:"え",o:"お",ka:"か",ki:"き",ku:"く",ke:"け",ko:"こ",
+  sa:"さ",shi:"し",su:"す",se:"せ",so:"そ",ta:"た",chi:"ち",tsu:"つ",te:"て",to:"と",
+  na:"な",ni:"に",nu:"ぬ",ne:"ね",no:"の",ha:"は",hi:"ひ",fu:"ふ",he:"へ",ho:"ほ",
+  ma:"ま",mi:"み",mu:"む",me:"め",mo:"も",ya:"や",yu:"ゆ",yo:"よ",
+  ra:"ら",ri:"り",ru:"る",re:"れ",ro:"ろ",wa:"わ",wo:"を",n:"ん",
+  ga:"が",gi:"ぎ",gu:"ぐ",ge:"げ",go:"ご",za:"ざ",ji:"じ",zu:"ず",ze:"ぜ",zo:"ぞ",
+  da:"だ",di:"ぢ",du:"づ",de:"で","do":"ど",ba:"ば",bi:"び",bu:"ぶ",be:"べ",bo:"ぼ",
+  pa:"ぱ",pi:"ぴ",pu:"ぷ",pe:"ぺ",po:"ぽ"
+};
+function speakCurrent() {
+  if (!S.current || !("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const rom = S.current[1];
+  const text = ROM_TO_KANA[rom.toLowerCase()] || rom;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "ja-JP"; u.rate = 1.0; u.volume = S.speakVolume;
+  const voices = speechSynthesis.getVoices();
+  const ja = voices.find(v => v.lang.startsWith("ja"));
+  if (ja) u.voice = ja;
+  speechSynthesis.speak(u);
+}
+function toggleAutoSpeak() {
+  S.autoSpeak = !S.autoSpeak;
+  updateAutoSpeakUI();
+  scheduleSave();
+}
+function updateAutoSpeakUI() {
+  const chips = document.querySelectorAll("#autoSpeakChip, #autoSpeakChipWrite");
+  chips.forEach(c => {
+    c.classList.toggle("on", S.autoSpeak);
+    c.textContent = S.autoSpeak ? "🔊 Auto: On" : "🔇 Auto: Off";
+  });
+  $("autoSpeakToggle").checked = S.autoSpeak;
+  $("volumeRow").style.display = S.autoSpeak ? "" : "none";
+}
+function updateMistakesVisibility() {
+  el.mistakesBar.classList.toggle("hidden", !S.showMistakes);
+}
+
+// ═══════════════════════════════════════════
+//  WRITE MODE CANVAS
+// ═══════════════════════════════════════════
+let _writeCtx = null;
+function getWriteCtx() {
+  if (_writeCtx) return _writeCtx;
+  const c = $("writeCanvas");
+  _writeCtx = c.getContext("2d");
+  return _writeCtx;
+}
+function sizeWriteCanvas() {
+  const wrap = $("writeCanvasWrap");
+  const c = $("writeCanvas");
+  const sz = Math.round(wrap.clientWidth);
+  c.width = sz; c.height = sz;
+}
+function writeRedraw() {
+  const c = $("writeCanvas");
+  const ctx = getWriteCtx();
+  const w = c.width, h = c.height;
+  ctx.clearRect(0, 0, w, h);
+  // Grid
+  if (S.writeGrid) {
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,.09)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h);
+    ctx.moveTo(0, h/2); ctx.lineTo(w, h/2);
+    ctx.stroke();
+    ctx.globalAlpha = 0.04;
+    ctx.beginPath();
+    ctx.moveTo(0, 0); ctx.lineTo(w, h);
+    ctx.moveTo(w, 0); ctx.lineTo(0, h);
+    ctx.stroke();
+    ctx.restore();
+  }
+  // Guide
+  if (S.writeGuide && S.current && !S.writeRevealed) {
+    ctx.save();
+    ctx.fillStyle = "rgba(255,255,255,.07)";
+    const fs = Math.round(w * 0.7);
+    ctx.font = `bold ${fs}px ${S.kanaFont}`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(S.current[0], w/2, h/2 + fs*0.04);
+    ctx.restore();
+  }
+  // Strokes
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  for (const stroke of S.writeStrokes) {
+    if (stroke.pts.length < 2) continue;
+    ctx.beginPath();
+    ctx.strokeStyle = "#e8eeff";
+    ctx.lineWidth = stroke.w;
+    ctx.moveTo(stroke.pts[0].x, stroke.pts[0].y);
+    for (let i = 1; i < stroke.pts.length; i++) {
+      const prev = stroke.pts[i-1], cur = stroke.pts[i];
+      ctx.quadraticCurveTo(prev.x, prev.y, (prev.x+cur.x)/2, (prev.y+cur.y)/2);
+    }
+    ctx.stroke();
+  }
+}
+function writeGetXY(e) {
+  const c = $("writeCanvas");
+  const r = c.getBoundingClientRect();
+  const sx = c.width / r.width, sy = c.height / r.height;
+  const src = e.touches ? e.touches[0] : e;
+  return { x: (src.clientX - r.left) * sx, y: (src.clientY - r.top) * sy };
+}
+function writeOnDown(e) {
+  if (S.writeRevealed) return;
+  e.preventDefault();
+  const p = writeGetXY(e);
+  const brushW = parseInt($("writeBrush").value) || 12;
+  S.writeCurrentStroke = { pts: [p], w: brushW };
+  S.writeStrokes.push(S.writeCurrentStroke);
+}
+function writeOnMove(e) {
+  if (!S.writeCurrentStroke || S.writeRevealed) return;
+  e.preventDefault();
+  S.writeCurrentStroke.pts.push(writeGetXY(e));
+  writeRedraw();
+}
+function writeOnUp(e) {
+  if (!S.writeCurrentStroke) return;
+  if (S.writeCurrentStroke.pts.length < 2) S.writeStrokes.pop();
+  S.writeCurrentStroke = null;
+}
+function writeReveal() {
+  if (!S.current || S.writeRevealed) return;
+  S.writeRevealed = true;
+  $("writeRevealChar").textContent = S.current[0];
+  $("writeRevealRom").textContent = S.current[1];
+  $("writeRevealOverlay").classList.add("on");
+  $("writeToolbar").style.display = "none";
+  $("writeGrade").classList.add("on");
+}
+function writeGrade(correct) {
+  if (!S.current || S.writeGraded) return;
+  S.writeGraded = true;
+  const pair = S.current, k = qKey(pair);
+  const ms = Date.now() - S.questionShownAt;
+  S.total++;
+  if (correct) {
+    S.correct++; S.score += 10 + Math.min(S.streak, 10); S.streak++;
+    S.missed.delete(k);
+    if (S.studyWeakest) recordResult(pair, true, false, ms, true);
+    if (S.streakSound) playStreakSound();
+    writeShowFeedback(`${pair[0]} = ${pair[1]}`, "good");
+  } else {
+    S.streak = 0; S.score = Math.max(0, S.score - 5);
+    S.missed.add(k);
+    if (S.studyWeakest) recordResult(pair, false, false, ms, true);
+    addMistake(pair);
+    writeShowFeedback(`${pair[0]} = ${pair[1]}`, "bad");
+  }
+  $("writeGrade").classList.remove("on");
+  $("writeNextWrap").classList.add("on");
+  updateStatsUI(); scheduleSave(); renderInsights();
+}
+function writeShowFeedback(text, kind) {
+  const fb = $("writeFeedback");
+  fb.innerHTML = "";
+  if (kind) {
+    const t = document.createElement("span");
+    t.className = "fb-tag " + kind;
+    t.textContent = kind === "good" ? "Correct" : "Wrong";
+    fb.append(t);
+  }
+  const s = document.createElement("span");
+  s.style.fontSize = "13px"; s.style.color = "var(--muted)";
+  s.textContent = " " + text;
+  fb.append(s);
+}
+function writeNextQuestion() {
+  S.writeRevealed = false; S.writeGraded = false;
+  S.writeStrokes = []; S.writeCurrentStroke = null;
+  $("writeRevealOverlay").classList.remove("on");
+  $("writeToolbar").style.display = "";
+  $("writeGrade").classList.remove("on");
+  $("writeNextWrap").classList.remove("on");
+  $("writeFeedback").innerHTML = "";
+  nextQuestion();
+}
+
+function updateWriteMode() {
+  const isWrite = S.mode === "write";
+  $("writeCard").classList.toggle("active", isWrite);
+  // Hide quiz card in write mode
+  const gc = document.querySelector(".game-card");
+  if (gc) gc.style.display = isWrite ? "none" : "";
+  if (isWrite) {
+    sizeWriteCanvas();
+    writeRedraw();
+  }
+}
+
+function writeStartQuestion() {
+  if (!S.current) return;
+  S.writeRevealed = false; S.writeGraded = false;
+  S.writeStrokes = []; S.writeCurrentStroke = null;
+  $("writePrompt").textContent = S.current[1];
+  $("writeRevealOverlay").classList.remove("on");
+  $("writeToolbar").style.display = "";
+  $("writeGrade").classList.remove("on");
+  $("writeNextWrap").classList.remove("on");
+  $("writeFeedback").innerHTML = "";
+  sizeWriteCanvas();
+  writeRedraw();
+}
+
+// ═══════════════════════════════════════════
 //  WIRE UP CONTROLS
 // ═══════════════════════════════════════════
 el.tabS2S.addEventListener("click",   () => setMode("symbolToSound"));
 el.tabSd2Sy.addEventListener("click", () => setMode("soundToSymbol"));
 el.tabConf.addEventListener("click",  () => setMode("confusables"));
+$("tabWrite").addEventListener("click", () => setMode("write"));
+
+// Write canvas events
+{
+  const c = $("writeCanvas");
+  c.addEventListener("mousedown", writeOnDown);
+  c.addEventListener("mousemove", writeOnMove);
+  c.addEventListener("mouseup", writeOnUp);
+  c.addEventListener("mouseleave", writeOnUp);
+  c.addEventListener("touchstart", writeOnDown, {passive:false});
+  c.addEventListener("touchmove", writeOnMove, {passive:false});
+  c.addEventListener("touchend", writeOnUp, {passive:false});
+}
+$("writeUndo").addEventListener("click", () => { S.writeStrokes.pop(); writeRedraw(); });
+$("writeClear").addEventListener("click", () => { S.writeStrokes = []; writeRedraw(); });
+$("writeRevealBtn").addEventListener("click", writeReveal);
+$("writeWrong").addEventListener("click", () => writeGrade(false));
+$("writeRight").addEventListener("click", () => writeGrade(true));
+$("writeNextBtn").addEventListener("click", writeNextQuestion);
 
 $("scriptSelect").addEventListener("change", e => {
   S.script = e.target.value; S.missed = new Set(); S.lastQuestion = null;
   S.selectedRows = [...DEFAULT_ROWS]; S.selectedGroups = [];
+  S.questionPulls = {};
   clearBag(); clearRecent();
   renderRowSelector(); renderGroupList(); renderCharList(); renderInsights();
   nextQuestion(); scheduleSave();
@@ -2044,6 +2535,23 @@ $("timedMode").addEventListener("change", e => {
 $("streakSound").addEventListener("change", e => {
   S.streakSound = e.target.checked; if (S.streakSound) getAudioCtx(); scheduleSave();
 });
+$("autoSpeakToggle").addEventListener("change", e => {
+  S.autoSpeak = e.target.checked; updateAutoSpeakUI(); scheduleSave();
+});
+$("volumeSlider").addEventListener("input", e => {
+  S.speakVolume = Number(e.target.value) / 100;
+  $("volumeLabel").textContent = e.target.value + "%";
+  scheduleSave();
+});
+$("showMistakesToggle").addEventListener("change", e => {
+  S.showMistakes = e.target.checked; updateMistakesVisibility(); scheduleSave();
+});
+$("writeGuideToggle").addEventListener("change", e => {
+  S.writeGuide = e.target.checked; if (S.mode === "write") writeRedraw(); scheduleSave();
+});
+$("writeGridToggle").addEventListener("change", e => {
+  S.writeGrid = e.target.checked; if (S.mode === "write") writeRedraw(); scheduleSave();
+});
 $("timeSelect").addEventListener("change", e => {
   S.timeLimit = Number(e.target.value); if (S.timedMode) startTimer(); scheduleSave();
 });
@@ -2078,7 +2586,7 @@ document.addEventListener("keydown", e => {
 // ═══════════════════════════════════════════
 loadState();
 if (!SCRIPTS[S.script])                                     S.script     = "hiragana";
-if (!["symbolToSound","soundToSymbol","confusables"].includes(S.mode)) S.mode = "symbolToSound";
+if (!["symbolToSound","soundToSymbol","confusables","write"].includes(S.mode)) S.mode = "symbolToSound";
 if (!["cycle","balanced"].includes(S.randomMode))           S.randomMode = "cycle";
 
 // Validate rows
@@ -2099,6 +2607,18 @@ $("timedMode").checked     = S.timedMode;
 $("streakSound").checked   = S.streakSound;
 $("selfTestMode").checked  = S.selfTestMode;
 $("timeSelect").value      = String(S.timeLimit);
+$("autoSpeakToggle").checked  = S.autoSpeak;
+$("volumeSlider").value       = Math.round(S.speakVolume * 100);
+$("volumeLabel").textContent  = Math.round(S.speakVolume * 100) + "%";
+$("showMistakesToggle").checked = S.showMistakes;
+$("writeGuideToggle").checked = S.writeGuide;
+$("writeGridToggle").checked  = S.writeGrid;
+
+// Restore collapsed sections
+S.collapsedSections.forEach(id => {
+  const sec = document.getElementById(id);
+  if (sec) sec.classList.remove("open");
+});
 
 applyFont();
 renderRowSelector();
@@ -2107,12 +2627,69 @@ renderGroupList();
 renderCharList();
 renderMistakes();
 updateModeUI();
+updateWriteMode();
+updateAutoSpeakUI();
+updateMistakesVisibility();
 updateTimerVisibility();
 updateStatsUI();
 renderInsights();
 applySelfTestState(false);
 document.body.classList.toggle("selftest-active-global", S.selfTestMode);
 nextQuestion();
+
+// Resize write canvas on window resize
+window.addEventListener("resize", () => { if (S.mode === "write") { sizeWriteCanvas(); writeRedraw(); } });
+
+// ═══════════════════════════════════════════
+//  MOBILE BOTTOM SHEETS
+// ═══════════════════════════════════════════
+{
+  const overlay = $("sheetOverlay");
+  const settingsSheet = $("settingsSheet");
+  const insightsSheet = $("insightsSheet");
+  const settingsSlot = $("sheetSettingsSlot");
+  const insightsSlot = $("sheetInsightsSlot");
+  const settingsCol = document.querySelector(".settings-col");
+  const insightsCol = document.querySelector(".insights-col");
+  let settingsOrigParent = settingsCol.parentNode;
+  let insightsOrigParent = insightsCol.parentNode;
+  let settingsOrigNext = settingsCol.nextSibling;
+  let insightsOrigNext = insightsCol.nextSibling;
+  let activeSheet = null;
+
+  function openSheet(type) {
+    if (type === "settings") {
+      // Move settings sections into sheet
+      while (settingsCol.firstChild) settingsSlot.appendChild(settingsCol.firstChild);
+      settingsSheet.classList.add("on");
+      activeSheet = "settings";
+    } else {
+      // Clone insights content
+      insightsSlot.innerHTML = insightsCol.innerHTML;
+      insightsSheet.classList.add("on");
+      activeSheet = "insights";
+    }
+    overlay.classList.add("on");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeSheet() {
+    if (activeSheet === "settings") {
+      // Move settings sections back
+      while (settingsSlot.firstChild) settingsCol.appendChild(settingsSlot.firstChild);
+      settingsSheet.classList.remove("on");
+    } else if (activeSheet === "insights") {
+      insightsSheet.classList.remove("on");
+    }
+    overlay.classList.remove("on");
+    document.body.style.overflow = "";
+    activeSheet = null;
+  }
+
+  $("openSettingsSheet").addEventListener("click", () => openSheet("settings"));
+  $("openInsightsSheet").addEventListener("click", () => openSheet("insights"));
+  overlay.addEventListener("click", closeSheet);
+}
 
 // ── SERVICE WORKER REGISTRATION ──
 if ("serviceWorker" in navigator) {
